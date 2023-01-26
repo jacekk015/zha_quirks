@@ -512,6 +512,10 @@ class Saswell_Thermostat_TZE200(TuyaThermostat):
             ("_TZE200_zuhszj9s", "TS0601"),
             ("_TZE200_zr9c0day", "TS0601"),
             ("_TZE200_h4cgnbzg", "TS0601"),
+            ("_TZE200_0dvm9mva", "TS0601"),
+            ("_TZE200_exfrnlow", "TS0601"),
+            ("_TZE200_9m4kmbfu", "TS0601"),
+            ("_TZE200_3yp57tby", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
@@ -620,6 +624,7 @@ class Saswell_Thermostat_TYST11(TuyaThermostat):
             ("_TYST11_yw7cahqs", "w7cahqs"),
             ("_TYST11_9gvruqf5", "gvruqf5"),
             ("_TYST11_zuhszj9s", "uhszj9s"),
+            ("_TYST11_caj4jz0i", "aj4jz0i"),
         ],
         ENDPOINTS: {
             1: {
