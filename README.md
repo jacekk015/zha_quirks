@@ -15,8 +15,6 @@ All quirks in one place:
             ("_TZE200_9m4kmbfu", "TS0601"),
             ("_TZE200_3yp57tby", "TS0601"),
         ],       
-```
-```
         MODELS_INFO: [
             ("_TYST11_KGbxAXL2", "GbxAXL2"),
             ("_TYST11_c88teujp", "88teujp"),
@@ -45,5 +43,88 @@ All quirks in one place:
         ],    
         MODELS_INFO: [
             ("_TZE200_2ekuz3dz", "TS0601"),
+        ],
+```
+## ts0601_trv_beca.py
+```
+        MODELS_INFO: [
+            ("_TZE200_b6wax7g0", "TS0601"),
+        ],
+```
+## ts0601_trv_etop.py
+```
+        MODELS_INFO: [
+            ("_TZE200_0hg58wyk", "TS0601"),
+        ],
+```
+## ts0601_trv_maxsmart.py
+```
+        MODELS_INFO: [
+            ("_TZE200_chyvmhay", "TS0601"),
+        ],
+```
+## ts0601_trv_me167.py
+```
+        MODELS_INFO: [
+            ("_TZE200_bvu2wnxz", "TS0601"),
+            ("_TZE200_6rdj8dzm", "TS0601"),
+        ],
+```
+## ts0601_trv_moes.py
+```
+        MODELS_INFO: [
+            ("_TZE200_ckud7u2l", "TS0601"),
+            ("_TZE200_ywdxldoj", "TS0601"),
+            ("_TZE200_cwnjrr72", "TS0601"),
+            ("_TZE200_cpmgn2cf", "TS0601"),
+            ("_TZE200_9sfg7gm0", "TS0601"),
+        ],
+        MODELS_INFO: [
+            ("_TYST11_ckud7u2l", "kud7u2l"),
+            ("_TYST11_ywdxldoj", "wdxldoj"),
+            ("_TYST11_cwnjrr72", "wnjrr72"),
+        ],
+```
+## ts0601_trv_rtitek.py
+```
+        MODELS_INFO: [
+            ("_TZE200_a4bpgplm", "TS0601"),
+        ],
+```
+## ts0601_trv_siterwell.py
+```
+        MODELS_INFO: [
+            ("_TYST11_jeaxp72v", "eaxp72v"),
+            ("_TYST11_kfvq6avy", "fvq6avy"),
+            ("_TYST11_zivfvd7h", "ivfvd7h"),
+            ("_TYST11_hhrtiq0x", "hrtiq0x"),
+            ("_TYST11_ps5v5jor", "s5v5jor"),
+            ("_TYST11_owwdxjbx", "wwdxjbx"),
+            ("_TYST11_8daqwrsj", "daqwrsj"),
+            ("_TYST11_czk78ptr", "zk78ptr"),
+        ],
+        MODELS_INFO: [
+            ("_TZE200_jeaxp72v", "TS0601"),
+            ("_TZE200_kfvq6avy", "TS0601"),
+            ("_TZE200_zivfvd7h", "TS0601"),
+            ("_TZE200_hhrtiq0x", "TS0601"),
+            ("_TZE200_ps5v5jor", "TS0601"),
+            ("_TZE200_owwdxjbx", "TS0601"),
+            ("_TZE200_8daqwrsj", "TS0601"),
+        ],
+```
+## ts0601_trv_zonnsmart.py
+```
+        MODELS_INFO: [
+            ("_TZE200_7yoranx2", "TS0601"),  # MOES TV01 ZTRV-ZX-TV01-MS
+            ("_TZE200_e9ba97vf", "TS0601"),  # Zonnsmart TV01-ZG
+            ("_TZE200_hue3yfsn", "TS0601"),  # Zonnsmart TV02-ZG
+            ("_TZE200_husqqvux", "TS0601"),  # Tesla Smart TSL-TRV-TV01ZG
+            ("_TZE200_kly8gjlz", "TS0601"),  # EARU TV05-ZG
+            ("_TZE200_lnbfnyxd", "TS0601"),  # Tesla Smart TSL-TRV-TV01ZG
+            ("_TZE200_mudxchsu", "TS0601"),  # Foluu TV05
+            ("_TZE200_kds0pmmv", "TS0601"),  # MOES TV02
+            ("_TZE200_sur6q7ko", "TS0601"),  # LSC Smart Connect 3012732
+            ("_TZE200_lllliz3p", "TS0601"),  # tuya TV02-Zigbee
         ],
 ```
