@@ -119,12 +119,12 @@ class ZONNSMARTThermostat(TuyaThermostatCluster):
             if attribute == "system_mode":
                 system_mode = value
                 oper_mode = self._attr_cache.get(
-                    self.attridx["programing_oper_mode"],
+                    self.attributes_by_name["programing_oper_mode"].id,
                     self.ProgrammingOperationMode.Simple,
                 )
             else:
                 system_mode = self._attr_cache.get(
-                    self.attridx["system_mode"], self.SystemMode.Heat
+                    self.attributes_by_name["system_mode"].id, self.SystemMode.Heat
                 )
                 oper_mode = value
             if system_mode == self.SystemMode.Off:
@@ -147,8 +147,12 @@ class ZONNSMARTThermostat(TuyaThermostatCluster):
         else:
             prog_mode = self.ProgrammingOperationMode.Simple
 
-        self._update_attribute(self.attridx["system_mode"], self.SystemMode.Heat)
-        self._update_attribute(self.attridx["programing_oper_mode"], prog_mode)
+        self._update_attribute(
+            self.attributes_by_name["system_mode"].id, self.SystemMode.Heat
+        )
+        self._update_attribute(
+            self.attributes_by_name["programing_oper_mode"].id, prog_mode
+        )
 
 
 class ZONNSMARTUserInterface(TuyaUserInterfaceCluster):
