@@ -1,6 +1,7 @@
 """Map from manufacturer to standard clusters for thermostatic valves."""
 
 import zigpy.types as t
+from zhaquirks import Bus, LocalDataCluster
 from zhaquirks.const import (
     DEVICE_TYPE,
     ENDPOINTS,
