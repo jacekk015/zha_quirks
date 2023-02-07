@@ -1,5 +1,8 @@
 """Map from manufacturer to standard clusters for thermostatic valves."""
 
+import logging
+from typing import Optional, Union
+
 import zigpy.types as t
 from zhaquirks import Bus, LocalDataCluster
 from zhaquirks.const import (
@@ -18,7 +21,11 @@ from zhaquirks.tuya import (
     TuyaUserInterfaceCluster,
 )
 from zigpy.profiles import zha
+from zigpy.zcl import foundation
 from zigpy.zcl.clusters.general import Basic, Groups, Ota, Scenes, Time
+from zigpy.zcl.clusters.hvac import Thermostat
+
+_LOGGER = logging.getLogger(__name__)
 
 ZONNSMART_CHILD_LOCK_ATTR = 0x0128  # [0] unlocked [1] child-locked
 ZONNSMART_WINDOW_DETECT_ATTR = 0x0108  # [0] inactive [1] active
@@ -34,6 +41,100 @@ ZONNSMART_UPTIME_TIME_ATTR = (
     0x0024  # Seems to be the uptime attribute (sent hourly, increases) [0,200]
 )
 ZONNSMARTManufClusterSelf = {}
+
+
+class CustomTuyaOnOff(LocalDataCluster, OnOff):
+    """Custom Tuya OnOff cluster."""
+
+    def __init__(self, *args, **kwargs):
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.endpoint.device.thermostat_onoff_bus.add_listener(self)
+
+    # pylint: disable=R0201
+    def map_attribute(self, attribute, value):
+        """Map standardized attribute value to dict of manufacturer values."""
+        return {}
+
+    async def write_attributes(self, attributes, manufacturer=None):
+        """Implement writeable attributes."""
+
+        records = self._write_attr_records(attributes)
+
+        if not records:
+            return [[foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)]]
+
+        manufacturer_attrs = {}
+        for record in records:
+            attr_name = self.attributes[record.attrid][0]
+            new_attrs = self.map_attribute(attr_name, record.value.value)
+
+            _LOGGER.debug(
+                "[0x%04x:%s:0x%04x] Mapping standard %s (0x%04x) "
+                "with value %s to custom %s",
+                self.endpoint.device.nwk,
+                self.endpoint.endpoint_id,
+                self.cluster_id,
+                attr_name,
+                record.attrid,
+                repr(record.value.value),
+                repr(new_attrs),
+            )
+
+            manufacturer_attrs.update(new_attrs)
+
+        if not manufacturer_attrs:
+            return [
+                [
+                    foundation.WriteAttributesStatusRecord(
+                        foundation.Status.FAILURE, r.attrid
+                    )
+                    for r in records
+                ]
+            ]
+
+        await ZONNSMARTManufClusterSelf[
+            self.endpoint.device.ieee
+        ].endpoint.tuya_manufacturer.write_attributes(
+            manufacturer_attrs, manufacturer=manufacturer
+        )
+
+        return [[foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)]]
+
+    async def command(
+        self,
+        command_id: Union[foundation.GeneralCommand, int, t.uint8_t],
+        *args,
+        manufacturer: Optional[Union[int, t.uint16_t]] = None,
+        expect_reply: bool = True,
+        tsn: Optional[Union[int, t.uint8_t]] = None,
+    ):
+        """Override the default Cluster command."""
+
+        if command_id in (0x0000, 0x0001, 0x0002):
+
+            if command_id == 0x0000:
+                value = False
+            elif command_id == 0x0001:
+                value = True
+            else:
+                attrid = self.attributes_by_name["on_off"].id
+                success, _ = await self.read_attributes(
+                    (attrid,), manufacturer=manufacturer
+                )
+                try:
+                    value = success[attrid]
+                except KeyError:
+                    return foundation.Status.FAILURE
+                value = not value
+
+            (res,) = await self.write_attributes(
+                {"on_off": value},
+                manufacturer=manufacturer,
+            )
+            return [command_id, res[0].status]
+
+        return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
 
 class ZONNSMARTManufCluster(TuyaManufClusterAttributes):
@@ -87,15 +188,23 @@ class ZONNSMARTManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event(
                 "state_change", value == 0
             )
+            self.endpoint.device.thermostat_bus.listener_event("mode_change2", value)
         elif attrid == ZONNSMART_CHILD_LOCK_ATTR:
             mode = 1 if value else 0
             self.endpoint.device.ui_bus.listener_event("child_lock_change", mode)
+            self.endpoint.device.thermostat_onoff_bus.listener_event(
+                "child_lock_change", value
+            )
         elif attrid == ZONNSMART_BATTERY_ATTR:
             self.endpoint.device.battery_bus.listener_event("battery_change", value)
 
 
 class ZONNSMARTThermostat(TuyaThermostatCluster):
     """Thermostat cluster for some thermostatic valves."""
+
+    _CONSTANT_ATTRIBUTES = {
+        0x001B: Thermostat.ControlSequenceOfOperation.Heating_Only,
+    }
 
     DIRECT_MAPPING_ATTRS = {
         "occupied_heating_setpoint": (
@@ -154,11 +263,34 @@ class ZONNSMARTThermostat(TuyaThermostatCluster):
             self.attributes_by_name["programing_oper_mode"].id, prog_mode
         )
 
+    def mode_change2(self, value):
+        if value == 1:
+            self._update_attribute(
+                self.attributes_by_name["system_mode"].id, self.SystemMode.Off
+            )
+        else:
+            self._update_attribute(
+                self.attributes_by_name["system_mode"].id, self.SystemMode.Heat
+            )
+
 
 class ZONNSMARTUserInterface(TuyaUserInterfaceCluster):
     """HVAC User interface cluster for tuya electric heating thermostats."""
 
     _CHILD_LOCK_ATTR = ZONNSMART_CHILD_LOCK_ATTR
+
+
+class ZONNSMARTChildLock(CustomTuyaOnOff):
+    """On/Off cluster for the child lock function."""
+
+    def child_lock_change(self, value):
+        """Child lock change."""
+        self._update_attribute(self.attributes_by_name["on_off"].id, value)
+
+    def map_attribute(self, attribute, value):
+        """Map standardized attribute value to dict of manufacturer values."""
+        if attribute == "on_off":
+            return {ZONNSMART_CHILD_LOCK_ATTR: value}
 
 
 class ZonnsmartTV01_ZG(TuyaThermostat):
@@ -167,6 +299,7 @@ class ZonnsmartTV01_ZG(TuyaThermostat):
     def __init__(self, *args, **kwargs):
         """Init device."""
         self.ZONNSMARTManufCluster_bus = Bus()
+        self.thermostat_onoff_bus = Bus()
         super().__init__(*args, **kwargs)
 
     signature = {
@@ -214,6 +347,12 @@ class ZonnsmartTV01_ZG(TuyaThermostat):
                     TuyaPowerConfigurationCluster,
                 ],
                 OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
-            }
+            },
+            2: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [ZONNSMARTChildLock],
+                OUTPUT_CLUSTERS: [],
+            },
         }
     }
