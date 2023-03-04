@@ -12,7 +12,11 @@ from zhaquirks.const import (
     OUTPUT_CLUSTERS,
     PROFILE_ID,
 )
-from zhaquirks.tuya import TuyaManufClusterAttributes, TuyaPowerConfigurationCluster
+from zhaquirks.tuya import (
+    TuyaManufClusterAttributes,
+    TuyaPowerConfigurationCluster,
+    TuyaThermostatCluster,
+)
 from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
 from zigpy.quirks import CustomCluster, CustomDevice
@@ -153,22 +157,25 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
 
     set_time_offset = 1970
 
-    manufacturer_attributes = {
-        TUYA_TEMPERATURE_ATTR: ("temperature", t.int16s),
-        TUYA_HUMIDITY_ATTR: ("humidity", t.uint16_t),
-        TUYA_BATTERY_ATTR: ("battery", t.uint8_t),
-        TUYA_MAX_TEMP: ("max_temperature", t.int16s),
-        TUYA_MIN_TEMP: ("min_temperature", t.int16s),
-        TUYA_ALARM_TEMP: ("alarm_temp", t.uint8_t),
-        TUYA_MAX_HUMIDITY: ("max_humidity", t.uint16_t),
-        TUYA_MIN_HUMIDITY: ("min_humidity", t.uint16_t),
-        TUYA_ALARM_HUMIDITY: ("alarm_humidity", t.uint8_t),
-        TUYA_TEMP_SENSIVITY: ("temp_sensivity", t.uint16_t),
-        TUYA_HUMIDITY_SENSIVITY: ("humidity_sensivity", t.uint16_t),
-        TUYA_TEMP_REPORTING: ("temp_reporting", t.uint16_t),
-        TUYA_HUMIDITY_REPORTING: ("humidity_reporting", t.uint16_t),
-        TUYA_TEMP_UNIT: ("temp_unit", t.uint8_t),
-    }
+    attributes = TuyaThermostatCluster.attributes.copy()
+    attributes.update(
+        {
+            TUYA_TEMPERATURE_ATTR: ("temperature", t.int16s),
+            TUYA_HUMIDITY_ATTR: ("humidity", t.uint16_t),
+            TUYA_BATTERY_ATTR: ("battery", t.uint8_t),
+            TUYA_MAX_TEMP: ("max_temperature", t.int16s),
+            TUYA_MIN_TEMP: ("min_temperature", t.int16s),
+            TUYA_ALARM_TEMP: ("alarm_temp", t.uint8_t),
+            TUYA_MAX_HUMIDITY: ("max_humidity", t.uint16_t),
+            TUYA_MIN_HUMIDITY: ("min_humidity", t.uint16_t),
+            TUYA_ALARM_HUMIDITY: ("alarm_humidity", t.uint8_t),
+            TUYA_TEMP_SENSIVITY: ("temp_sensivity", t.uint16_t),
+            TUYA_HUMIDITY_SENSIVITY: ("humidity_sensivity", t.uint16_t),
+            TUYA_TEMP_REPORTING: ("temp_reporting", t.uint16_t),
+            TUYA_HUMIDITY_REPORTING: ("humidity_reporting", t.uint16_t),
+            TUYA_TEMP_UNIT: ("temp_unit", t.uint8_t),
+        }
+    )
 
     def _update_attribute(self, attrid, value):
         """Override default _update_attribute."""
