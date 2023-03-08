@@ -203,19 +203,21 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
                 self.endpoint.device.TuyaAlarmTempUnder_bus.listener_event(
                     "set_value", True
                 )
-                self.endpoint.device.TuyaAlarmTempOver.listener_event(
+                self.endpoint.device.TuyaAlarmTempOver_bus.listener_event(
                     "set_value", False
                 )
             elif value == 1:
                 self.endpoint.device.TuyaAlarmTempUnder_bus.listener_event(
                     "set_value", False
                 )
-                self.endpoint.device.TuyaAlarmTempOver.listener_event("set_value", True)
+                self.endpoint.device.TuyaAlarmTempOver_bus.listener_event(
+                    "set_value", True
+                )
             else:
                 self.endpoint.device.TuyaAlarmTempUnder_bus.listener_event(
                     "set_value", False
                 )
-                self.endpoint.device.TuyaAlarmTempOver.listener_event(
+                self.endpoint.device.TuyaAlarmTempOver_bus.listener_event(
                     "set_value", False
                 )
         elif attrid == TUYA_MAX_HUMIDITY:
