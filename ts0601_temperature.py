@@ -13,9 +13,11 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    TuyaManufCluster,
     TuyaManufClusterAttributes,
     TuyaPowerConfigurationCluster,
     TuyaThermostatCluster,
+    TuyaTimePayload,
 )
 from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
@@ -127,7 +129,7 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
             elif command_id == 0x0001:
                 value = True
             else:
-                attrid = self.attridx["on_off"]
+                attrid = self.attributes_by_name["on_off"].id
                 success, _ = await self.read_attributes(
                     (attrid,), manufacturer=manufacturer
                 )
@@ -156,6 +158,27 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
         TuyaManufClusterSelf[self.endpoint.device.ieee] = self
 
     set_time_offset = 1970
+
+    server_commands = {
+        0x0000: foundation.ZCLCommandDef(
+            "set_data",
+            {"param": TuyaManufCluster.Command},
+            False,
+            is_manufacturer_specific=False,
+        ),
+        0x0010: foundation.ZCLCommandDef(
+            "mcu_version_req",
+            {"param": t.uint16_t},
+            False,
+            is_manufacturer_specific=True,
+        ),
+        0x0024: foundation.ZCLCommandDef(
+            "set_time",
+            {"param": TuyaTimePayload},
+            False,
+            is_manufacturer_specific=False,
+        ),
+    }
 
     attributes = TuyaThermostatCluster.attributes.copy()
     attributes.update(
@@ -276,7 +299,7 @@ class TuyaSensorTemperature(LocalDataCluster, TemperatureMeasurement):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["measured_value"], value)
+        self._update_attribute(self.attributes_by_name["measured_value"].id, value)
 
 
 class TuyaSensorRelativeHumidity(LocalDataCluster, RelativeHumidity):
@@ -289,7 +312,7 @@ class TuyaSensorRelativeHumidity(LocalDataCluster, RelativeHumidity):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["measured_value"], value)
+        self._update_attribute(self.attributes_by_name["measured_value"].id, value)
 
 
 class TuyaPowerConfigurationCluster2AAA(TuyaPowerConfigurationCluster):
@@ -313,26 +336,28 @@ class TuyaMaxTemperature(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaMaxTemperature_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Max Temperature")
-        self._update_attribute(self.attridx["max_present_value"], 30)
-        self._update_attribute(self.attridx["min_present_value"], -20)
-        self._update_attribute(self.attridx["resolution"], 0.1)
-        self._update_attribute(self.attridx["application_type"], 13 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 62)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Max Temperature"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 30)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, -20)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value / 10)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value / 10)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -353,26 +378,28 @@ class TuyaMinTemperature(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaMinTemperature_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Min Temperature")
-        self._update_attribute(self.attridx["max_present_value"], 30)
-        self._update_attribute(self.attridx["min_present_value"], -20)
-        self._update_attribute(self.attridx["resolution"], 0.1)
-        self._update_attribute(self.attridx["application_type"], 13 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 62)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Min Temperature"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 30)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, -20)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value / 10)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value / 10)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -396,7 +423,7 @@ class TuyaAlarmTempUnder(LocalDataCluster, BinaryInput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaAlarmTempOver(LocalDataCluster, BinaryInput):
@@ -409,7 +436,7 @@ class TuyaAlarmTempOver(LocalDataCluster, BinaryInput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaMaxHumidity(LocalDataCluster, AnalogOutput):
@@ -419,26 +446,28 @@ class TuyaMaxHumidity(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaMaxHumidity_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Max Humidity")
-        self._update_attribute(self.attridx["max_present_value"], 100)
-        self._update_attribute(self.attridx["min_present_value"], 0)
-        self._update_attribute(self.attridx["resolution"], 1)
-        self._update_attribute(self.attridx["application_type"], 1 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 98)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Max Humidity"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 100)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 0)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 1 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 98)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -459,26 +488,28 @@ class TuyaMinHumidity(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaMinHumidity_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Min Humidity")
-        self._update_attribute(self.attridx["max_present_value"], 100)
-        self._update_attribute(self.attridx["min_present_value"], 0)
-        self._update_attribute(self.attridx["resolution"], 1)
-        self._update_attribute(self.attridx["application_type"], 1 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 98)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Min Humidity"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 100)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 0)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 1 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 98)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -502,7 +533,7 @@ class TuyaAlarmHumidityUnder(LocalDataCluster, BinaryInput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaAlarmHumidityOver(LocalDataCluster, BinaryInput):
@@ -515,7 +546,7 @@ class TuyaAlarmHumidityOver(LocalDataCluster, BinaryInput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaTempSensivity(LocalDataCluster, AnalogOutput):
@@ -525,26 +556,28 @@ class TuyaTempSensivity(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaTempSensivity_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Temperature sensivity")
-        self._update_attribute(self.attridx["max_present_value"], 10)
-        self._update_attribute(self.attridx["min_present_value"], 0.5)
-        self._update_attribute(self.attridx["resolution"], 0.5)
-        self._update_attribute(self.attridx["application_type"], 13 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 62)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Temperature sensivity"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 10)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 0.5)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.5)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value / 2)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value / 2)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -565,26 +598,28 @@ class TuyaHumiditySensivity(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaHumiditySensivity_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Humidity sensivity")
-        self._update_attribute(self.attridx["max_present_value"], 10)
-        self._update_attribute(self.attridx["min_present_value"], 1)
-        self._update_attribute(self.attridx["resolution"], 1)
-        self._update_attribute(self.attridx["application_type"], 1 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 98)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Humidity sensivity"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 10)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 1)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 1 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 98)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -606,27 +641,27 @@ class TuyaTemperatureReporting(LocalDataCluster, AnalogOutput):
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaTemperatureReporting_bus.add_listener(self)
         self._update_attribute(
-            self.attridx["description"], "Temperature reporting time"
+            self.attributes_by_name["description"].id, "Temperature reporting time"
         )
-        self._update_attribute(self.attridx["max_present_value"], 300)
-        self._update_attribute(self.attridx["min_present_value"], 1)
-        self._update_attribute(self.attridx["resolution"], 1)
-        self._update_attribute(self.attridx["application_type"], 14 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 72)
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 300)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 1)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 14 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 72)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -647,26 +682,28 @@ class TuyaHumidityReporting(LocalDataCluster, AnalogOutput):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaHumidityReporting_bus.add_listener(self)
-        self._update_attribute(self.attridx["description"], "Humidity reporting time")
-        self._update_attribute(self.attridx["max_present_value"], 300)
-        self._update_attribute(self.attridx["min_present_value"], 1)
-        self._update_attribute(self.attridx["resolution"], 1)
-        self._update_attribute(self.attridx["application_type"], 14 << 16)
-        self._update_attribute(self.attridx["engineering_units"], 72)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Humidity reporting time"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 300)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 1)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 14 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 72)
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attridx["present_value"], value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
     def get_value(self):
         """Get value."""
-        return self._attr_cache.get(self.attridx["present_value"])
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
 
     async def write_attributes(self, attributes, manufacturer=None):
         """Override the default Cluster write_attributes."""
         for attrid, value in attributes.items():
             if isinstance(attrid, str):
-                attrid = self.attridx[attrid]
+                attrid = self.attributes_by_name[attrid].id
             if attrid not in self.attributes:
                 self.error("%d is not a valid attribute id", attrid)
                 continue
@@ -685,7 +722,7 @@ class TuyaTempUnit(CustomTuyaOnOff):
 
     def unit_change(self, value):
         """Unit change."""
-        self._update_attribute(self.attridx["on_off"], value)
+        self._update_attribute(self.attributes_by_name["on_off"].id, value)
 
     def map_attribute(self, attribute, value):
         """Map standardized attribute value to dict of manufacturer values."""
