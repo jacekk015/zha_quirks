@@ -311,7 +311,7 @@ class SiterwellWindowDetection(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 has_change = True
@@ -385,7 +385,7 @@ class SiterwellValveDetection(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 has_change = True
@@ -487,7 +487,7 @@ class SiterwellChildLock(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 has_change = True
@@ -566,7 +566,7 @@ class SiterwellInstallMode(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 mode = 1 if value is False else 3

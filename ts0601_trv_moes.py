@@ -94,7 +94,7 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
 
         manufacturer_attrs = {}
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             new_attrs = self.map_attribute(attr_name, record.value.value)
 
             _LOGGER.debug(
@@ -799,7 +799,7 @@ class MoesWindowDetection(LocalDataCluster, OnOff):
         )
 
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 data[2] = record.value.value
                 has_change = True

@@ -589,7 +589,7 @@ class BecaWindowDetection_A2(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 has_change = True
@@ -665,7 +665,7 @@ class BecaChildLock(LocalDataCluster, OnOff):
 
         has_change = False
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 value = record.value.value
                 has_change = True

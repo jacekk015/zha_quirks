@@ -104,7 +104,7 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
 
         manufacturer_attrs = {}
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             new_attrs = self.map_attribute(attr_name, record.value.value)
 
             _LOGGER.debug(
@@ -1358,7 +1358,7 @@ class MaxsmartLocalTempUpdate(LocalDataCluster, OnOff):
             return [[foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)]]
 
         for record in records:
-            attr_name = self.attributes[record.attrid][0]
+            attr_name = self.attributes[record.attrid].name
             if attr_name == "on_off":
                 return await MaxsmartManufClusterSelf[
                     self.endpoint.device.ieee
