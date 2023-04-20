@@ -733,7 +733,7 @@ class Rti(TuyaThermostat):
         #  output_clusters=[10, 25]>
         MODELS_INFO: [
             ("_TZE200_a4bpgplm", "TS0601"),
-            ("_TZE200_a4bpgplm", "TS0601"),
+            ("_TZE200_z1tyspqw", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
