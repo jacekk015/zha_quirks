@@ -13,10 +13,12 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    TuyaManufCluster,
     TuyaManufClusterAttributes,
     TuyaPowerConfigurationCluster,
     TuyaThermostat,
     TuyaThermostatCluster,
+    TuyaTimePayload,
     TuyaUserInterfaceCluster,
 )
 from zigpy.profiles import zha
@@ -76,6 +78,27 @@ class BecaManufCluster(TuyaManufClusterAttributes):
         BecaManufClusterSelf[self.endpoint.device.ieee] = self
 
     set_time_offset = 1970
+
+    server_commands = {
+        0x0000: foundation.ZCLCommandDef(
+            "set_data",
+            {"param": TuyaManufCluster.Command},
+            False,
+            is_manufacturer_specific=False,
+        ),
+        0x0010: foundation.ZCLCommandDef(
+            "mcu_version_req",
+            {"param": t.uint16_t},
+            False,
+            is_manufacturer_specific=True,
+        ),
+        0x0024: foundation.ZCLCommandDef(
+            "set_time",
+            {"param": TuyaTimePayload},
+            False,
+            is_manufacturer_specific=True,
+        ),
+    }
 
     attributes = TuyaManufClusterAttributes.attributes.copy()
     attributes.update(
