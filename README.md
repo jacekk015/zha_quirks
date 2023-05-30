@@ -92,6 +92,9 @@ logger:
         MODELS_INFO: [
             ("_TZE200_chyvmhay", "TS0601"),
             ("_TZE200_i48qyn9s", "TS0601"), #ESSENTIALS Smart Home Heizkörperthermostat
+            ("_TZE200_qc4fpmcn", "TS0601"),
+            ("_TZE200_fhn3negr", "TS0601"),
+            ("_TZE200_thbr5z34", "TS0601"),
         ],
 ```
 ## ts0601_trv_me167.py
