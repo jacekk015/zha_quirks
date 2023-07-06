@@ -78,7 +78,7 @@ class SiterwellManufCluster(TuyaManufClusterAttributes):
             SITERWELL_BATTERY_ATTR: ("battery", t.uint32_t, True),
             SITERWELL_MODE_ATTR: ("mode", t.uint8_t, True),
             SITERWELL_WINDOW_ALARM_ATTR: ("window_alarm", t.uint8_t, True),
-            SITERWELL_VALVE_JAMMED_ALARM_ATTR: ("window_alarm", t.uint8_t, True),
+            SITERWELL_VALVE_JAMMED_ALARM_ATTR: ("valve_alarm", t.uint8_t, True),
         }
     )
 
