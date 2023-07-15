@@ -1441,6 +1441,7 @@ class Maxsmart(TuyaThermostat):
             ("_TZE200_i48qyn9s", "TS0601"),
             ("_TZE200_fhn3negr", "TS0601"),
             ("_TZE200_thbr5z34", "TS0601"),
+            ("_TZE200_uiyqstza", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
