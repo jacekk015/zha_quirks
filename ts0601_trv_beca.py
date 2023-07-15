@@ -114,7 +114,7 @@ class BecaManufCluster(TuyaManufClusterAttributes):
             BECA_WINDOW_DETECT_A2_ATTR: ("window_detection_A2_function", t.uint8_t),
             BECA_BOOST_TIME_ATTR: ("boost_duration_seconds", t.uint32_t),
             BECA_BOOST_ATTR: ("boost_enabled", t.uint8_t),
-            BECA_BOOST_COUNTDOWN_ATTR: ("boost_duration_seconds", t.uint32_t),
+            BECA_BOOST_COUNTDOWN_ATTR: ("boost_duration_seconds_countdown", t.uint32_t),
             BECA_ECO_TEMP_ATTR: ("eco_mode_temperature", t.uint32_t),
             BECA_ECO_MODE_ATTR: ("eco_mode_enabled", t.uint8_t),
             BECA_VALVE_STATE_ATTR: ("valve_state", t.uint32_t),

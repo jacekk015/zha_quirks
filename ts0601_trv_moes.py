@@ -1292,9 +1292,17 @@ class MoesHY368_Type1(TuyaThermostat):
         MODELS_INFO: [
             ("_TZE200_ckud7u2l", "TS0601"),
             ("_TZE200_ywdxldoj", "TS0601"),
+            ("_TZE200_do5qy8zo", "TS0601"),
             ("_TZE200_cwnjrr72", "TS0601"),
-            ("_TZE200_cpmgn2cf", "TS0601"),
+            ("_TZE200_pvvbommb", "TS0601"),
             ("_TZE200_9sfg7gm0", "TS0601"),
+            ("_TZE200_2atgpdho", "TS0601"),
+            ("_TZE200_cpmgn2cf", "TS0601"),
+            ("_TZE200_8thwkzxl", "TS0601"),
+            ("_TZE200_4eeyebrt", "TS0601"),
+            ("_TZE200_8whxpsiw", "TS0601"),
+            ("_TZE200_xby0s3ta", "TS0601"),
+            ("_TZE200_7fqkphoq", "TS0601"),
         ],
         ENDPOINTS: {
             1: {

@@ -190,8 +190,8 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
     attributes = TuyaManufClusterAttributes.attributes.copy()
     attributes.update(
         {
-            MAXSMART_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
-            SILVERCREST_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
+            MAXSMART_CHILD_LOCK_ATTR: ("child_lock_m", t.uint8_t, True),
+            SILVERCREST_CHILD_LOCK_ATTR: ("child_lock_s", t.uint8_t, True),
             MAXSMART_WINDOW_DETECT_ATTR: ("window_detection", t.uint8_t, True),
             MAXSMART_WINDOW_DETECT_TEMP_ATTR: (
                 "window_detection_temp",
@@ -218,8 +218,8 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
             MAXSMART_TEMP_CALIBRATION_ATTR: ("temperature_calibration", t.int32s, True),
             MAXSMART_COMFORT_TEMP_ATTR: ("comfort_mode_temperature", t.uint32_t, True),
             MAXSMART_ECO_TEMP_ATTR: ("eco_mode_temperature", t.uint32_t, True),
-            MAXSMART_BATTERY_ATTR: ("battery", t.uint32_t, True),
-            SILVERCREST_BATTERY_ATTR: ("battery", t.uint32_t, True),
+            MAXSMART_BATTERY_ATTR: ("battery_m", t.uint32_t, True),
+            SILVERCREST_BATTERY_ATTR: ("battery_s", t.uint32_t, True),
             MAXSMART_AWAY_DATA_ATTR: ("away_data", t.data64, True),
             MAXSMART_BOOST_COUNTDOWN: ("boost_countdown", t.uint32_t, True),
             MAXSMART_BOOST_ATTR: ("boost_enabled", t.uint8_t, True),
