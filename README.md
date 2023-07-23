@@ -44,6 +44,7 @@ logger:
             ("_TZE200_exfrnlow", "TS0601"),
             ("_TZE200_9m4kmbfu", "TS0601"),
             ("_TZE200_3yp57tby", "TS0601"),
+            ("_TZE200_mz5y07w2", "TS0601"), #Garza Smart TRV
         ],       
         MODELS_INFO: [
             ("_TYST11_KGbxAXL2", "GbxAXL2"),

@@ -516,6 +516,7 @@ class Saswell_Thermostat_TZE200(TuyaThermostat):
             ("_TZE200_exfrnlow", "TS0601"),
             ("_TZE200_9m4kmbfu", "TS0601"),
             ("_TZE200_3yp57tby", "TS0601"),
+            ("_TZE200_mz5y07w2", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
