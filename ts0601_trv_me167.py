@@ -182,11 +182,7 @@ class ME167ManufCluster(TuyaManufClusterAttributes):
         {
             ME167_TEMPERATURE_ATTR: ("temperature", t.uint32_t, True),
             ME167_TARGET_TEMP_ATTR: ("target_temperature", t.uint32_t, True),
-            ME167_TEMP_CALIBRATION_ATTR: (
-                "temperature_calibration",
-                t.int32s,
-                True,
-            ),
+            ME167_TEMP_CALIBRATION_ATTR: ("temperature_calibration", t.int32s, True),
             ME167_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
             ME167_MODE_ATTR: ("mode", t.uint8_t, True),
             ME167_STATE_ATTR: ("state", t.uint8_t, True),
