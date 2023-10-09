@@ -1405,7 +1405,7 @@ class MaxsmartLocalTempUpdate(LocalDataCluster, OnOff):
                 {"on_off": value}, manufacturer=manufacturer
             )
 
-            return [command_id, res]
+            return [command_id, res[0].status]
 
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
