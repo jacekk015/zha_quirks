@@ -42,6 +42,7 @@ _LOGGER = logging.getLogger(__name__)
 ZWT198_TARGET_TEMP_ATTR = 0x0202  # target room temp (degree)
 ZWT198_TEMPERATURE_ATTR = 0x0203  # current room temp (degree/10)
 ZWT198_MODE_ATTR = 0x0404  # [0] schedule [1] manual
+ZWT198_SYSTEM_MODE_ATTR = 0x0101  # device [0] off [1] on
 ZWT198_HEAT_STATE_ATTR = 0x0465  # [0] heating icon off [1] heating icon on
 ZWT198_CHILD_LOCK_ATTR = 0x0109  # [0] unlocked [1] locked
 ZWT198_TEMP_CALIBRATION_ATTR = 0x0213  # temperature calibration (degree)
@@ -161,6 +162,7 @@ class ZWT198ManufCluster(TuyaManufClusterAttributes):
             ZWT198_TEMPERATURE_ATTR: ("temperature", t.uint32_t, True),
             ZWT198_TARGET_TEMP_ATTR: ("target_temperature", t.uint32_t, True),
             ZWT198_MODE_ATTR: ("mode", t.uint8_t, True),
+            ZWT198_SYSTEM_MODE_ATTR: ("system_mode", t.uint8_t, True),
             ZWT198_HEAT_STATE_ATTR: ("heat_state", t.uint8_t, True),
             ZWT198_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
             ZWT198_TEMP_CALIBRATION_ATTR: ("temperature_calibration", t.int32s, True),
@@ -207,6 +209,10 @@ class ZWT198ManufCluster(TuyaManufClusterAttributes):
             )
         elif attrid == ZWT198_HEAT_STATE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event("state_change", value)
+        elif attrid == ZWT198_SYSTEM_MODE_ATTR:
+            self.endpoint.device.thermostat_bus.listener_event(
+                "system_mode_change", value
+            )
 
 
 class ZWT198Thermostat(TuyaThermostatCluster):
@@ -312,6 +318,13 @@ class ZWT198Thermostat(TuyaThermostatCluster):
             else:
                 self.error("Unsupported value for Occupancy")
 
+        if attribute == "system_mode":
+            if value == self.SystemMode.Off:
+                mode = 0
+            else:
+                mode = 1
+            return {ZWT198_SYSTEM_MODE_ATTR: mode}
+
     def mode_change(self, value):
         """Preset Mode change."""
         if value == 0:
@@ -330,6 +343,14 @@ class ZWT198Thermostat(TuyaThermostatCluster):
         self._update_attribute(
             self.attributes_by_name["operation_preset"].id, operation_preset
         )
+
+    def system_mode_change(self, value):
+        """System Mode change."""
+        if value == 0:
+            mode = self.SystemMode.Off
+        else:
+            mode = self.SystemMode.Heat
+        self._update_attribute(self.attributes_by_name["system_mode"].id, mode)
 
 
 class ZWT198UserInterface(TuyaUserInterfaceCluster):
