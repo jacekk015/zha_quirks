@@ -181,3 +181,9 @@ logger:
             ("_TZE200_lllliz3p", "TS0601"),  # tuya TV02-Zigbee
         ],
 ```
+## ts0601_thermostat_zwt198.py
+```
+        MODELS_INFO: [
+            ("_TZE200_viy9ihs7", "TS0601"),
+        ],
+```
