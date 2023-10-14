@@ -76,6 +76,12 @@ logger:
             ("_TZE200_2ekuz3dz", "TS0601"),
         ],
 ```
+## ts0601_thermostat_avatto2.py
+```
+        MODELS_INFO: [
+            ("_TZE204_lzriup1j", "TS0601"), #Avatto - Electric Heating version
+        ],
+```
 ## ts0601_trv_beca.py
 ```
         MODELS_INFO: [
