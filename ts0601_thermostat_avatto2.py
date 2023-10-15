@@ -45,6 +45,7 @@ AVATTO2_MODE_ATTR = 0x0404  # [0] home [1] auto [2] temporary
 AVATTO2_SYSTEM_MODE_ATTR = 0x0101  # device [0] off [1] on
 AVATTO2_HEAT_STATE_ATTR = 0x0405  # [0] heating icon off [1] heating icon on
 AVATTO2_CHILD_LOCK_ATTR = 0x0109  # [0] unlocked [1] locked
+AVATTO2_SENSOR_ATTR = 0x046E  # [1], [2], [3]
 AVATTO2_TEMP_CALIBRATION_ATTR = 0x0213  # temperature calibration (degree)
 AVATTO2_MIN_TEMPERATURE_VAL = 500  # minimum limit of temperature setting (degree/100)
 AVATTO2_MAX_TEMPERATURE_VAL = 9500  # maximum limit of temperature setting (degree/100)
@@ -186,6 +187,7 @@ class Avatto2ManufCluster(TuyaManufClusterAttributes):
             AVATTO2_SYSTEM_MODE_ATTR: ("system_mode", t.uint8_t, True),
             AVATTO2_HEAT_STATE_ATTR: ("heat_state", t.uint8_t, True),
             AVATTO2_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
+            AVATTO2_SENSOR_ATTR: ("sensor_choose", t.uint8_t, True),
             AVATTO2_TEMP_CALIBRATION_ATTR: ("temperature_calibration", t.int32s, True),
         }
     )
@@ -272,6 +274,7 @@ class Avatto2Thermostat(TuyaThermostatCluster):
     attributes = TuyaThermostatCluster.attributes.copy()
     attributes.update(
         {
+            0x4000: ("sensor_choose", t.uint8_t, True),
             0x4002: ("operation_preset", Preset, True),
         }
     )
@@ -285,6 +288,7 @@ class Avatto2Thermostat(TuyaThermostatCluster):
             AVATTO2_TARGET_TEMP_ATTR,
             lambda value: round(value / 10),
         ),
+        "sensor_choose": (AVATTO2_SENSOR_ATTR, None),
     }
 
     def __init__(self, *args, **kwargs):
