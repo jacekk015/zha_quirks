@@ -212,7 +212,8 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
         if attrid in self.DIRECT_MAPPED_ATTRS:
             if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz" or (
                 attrid == AVATTO_TEMPERATURE_ATTR
-                and self.endpoint.device.manufacturer == "_TZE200_u9bfwha0"
+                and self.endpoint.device.manufacturer
+                in ("_TZE200_u9bfwha0", "_TZE200_aoclfnxz")
             ):
                 self.endpoint.device.thermostat_bus.listener_event(
                     "temperature_change",

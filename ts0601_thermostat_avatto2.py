@@ -40,7 +40,7 @@ from zigpy.zcl.clusters.hvac import Thermostat
 _LOGGER = logging.getLogger(__name__)
 
 AVATTO2_TARGET_TEMP_ATTR = 0x0202  # target room temp (degree)
-AVATTO2_TEMPERATURE_ATTR = 0x0203  # +current room temp (degree/10)
+AVATTO2_TEMPERATURE_ATTR = 0x0203  # current room temp (degree/10)
 AVATTO2_MODE_ATTR = 0x0404  # [0] home [1] auto [2] temporary
 AVATTO2_SYSTEM_MODE_ATTR = 0x0101  # device [0] off [1] on
 AVATTO2_HEAT_STATE_ATTR = 0x0405  # [0] heating icon off [1] heating icon on
