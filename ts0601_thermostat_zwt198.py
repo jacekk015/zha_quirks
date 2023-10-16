@@ -359,7 +359,7 @@ class ZWT198UserInterface(TuyaUserInterfaceCluster):
     _CHILD_LOCK_ATTR = ZWT198_CHILD_LOCK_ATTR
 
 
-class ZWT198UserInterface(CustomTuyaOnOff):
+class ZWT198ChildLock(CustomTuyaOnOff):
     """On/Off cluster for the child lock function of the electric heating thermostats."""
 
     def child_lock_change(self, value):
@@ -464,7 +464,7 @@ class ZWT198(EnchantedDevice, TuyaThermostat):
             2: {
                 PROFILE_ID: zha.PROFILE_ID,
                 DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
-                INPUT_CLUSTERS: [ZWT198UserInterface],
+                INPUT_CLUSTERS: [ZWT198ChildLock],
                 OUTPUT_CLUSTERS: [],
             },
             3: {
