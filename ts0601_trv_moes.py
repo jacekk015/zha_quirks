@@ -311,6 +311,10 @@ class MoesManufCluster(TuyaManufClusterAttributes):
                 "set_value",
                 value,
             )
+        elif attrid == MOES_VALVE_STATE_ATTR:
+            self.endpoint.device.thermostat_bus.listener_event(
+                "system_mode_change", value
+            )
 
 
 class MoesThermostat(TuyaThermostatCluster):
@@ -505,11 +509,14 @@ class MoesThermostat(TuyaThermostatCluster):
             else:
                 self.error("Unsupported value for Occupancy")
         if attribute == "system_mode":
-            return {
-                MOES_MODE_ATTR: self._attr_cache.get(
-                    self.attributes_by_name["operation_preset"].id, 2
-                )
-            }
+            if value == self.SystemMode.Off:
+                mode = 2
+            if value == self.SystemMode.Heat:
+                mode = 1
+            else:
+                mode = 0
+            return {MOES_FORCE_VALVE_ATTR: mode}
+
         if attribute in self.WORKDAY_SCHEDULE_ATTRS:
             data = data144()
             for num, (attr, default) in enumerate(self.WORKDAY_SCHEDULE_ATTRS.items()):
@@ -587,6 +594,16 @@ class MoesThermostat(TuyaThermostatCluster):
             self.attributes_by_name["programing_oper_mode"].id, prog_mode
         )
         self._update_attribute(self.attributes_by_name["occupancy"].id, occupancy)
+
+    def system_mode_change(self, value):
+        """System Mode change."""
+        if value == 2:
+            mode = self.SystemMode.Off
+        if value == 0:
+            mode = self.SystemMode.Auto
+        else:
+            mode = self.SystemMode.Heat
+        self._update_attribute(self.attributes_by_name["system_mode"].id, mode)
 
     def schedule_change(self, attr, value):
         """Scheduler attribute change."""
