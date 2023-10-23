@@ -360,7 +360,7 @@ class SiterwellWindowDetection(LocalDataCluster, OnOff):
                 {"on_off": value}, manufacturer=manufacturer
             )
 
-            return [command_id, res]
+            return [command_id, res[0].status]
 
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
@@ -436,7 +436,7 @@ class SiterwellValveDetection(LocalDataCluster, OnOff):
                 {"on_off": value}, manufacturer=manufacturer
             )
 
-            return [command_id, res]
+            return [command_id, res[0].status]
 
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
@@ -538,7 +538,7 @@ class SiterwellChildLock(LocalDataCluster, OnOff):
                 {"on_off": value}, manufacturer=manufacturer
             )
 
-            return [command_id, res]
+            return [command_id, res[0].status]
 
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
@@ -618,7 +618,7 @@ class SiterwellInstallMode(LocalDataCluster, OnOff):
                 {"on_off": value}, manufacturer=manufacturer
             )
 
-            return [command_id, res]
+            return [command_id, res[0].status]
 
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
@@ -774,7 +774,7 @@ class SiterwellGS361_Type2(TuyaThermostat):
             ("_TZE200_ps5v5jor", "TS0601"),
             ("_TZE200_owwdxjbx", "TS0601"),
             ("_TZE200_8daqwrsj", "TS0601"),
-            ("_TZE200_2cs6g9i7", "TS0601"), # Brennenstuhl HT CZ 01
+            ("_TZE200_2cs6g9i7", "TS0601"),  # Brennenstuhl HT CZ 01
         ],
         ENDPOINTS: {
             1: {
