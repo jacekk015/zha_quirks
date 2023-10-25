@@ -1441,7 +1441,6 @@ class Maxsmart(TuyaThermostat):
             ("_TZE200_i48qyn9s", "TS0601"),
             ("_TZE200_fhn3negr", "TS0601"),
             ("_TZE200_thbr5z34", "TS0601"),
-            ("_TZE200_uiyqstza", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
@@ -1772,6 +1771,166 @@ class Silvercrest2(TuyaThermostat):
                     Groups.cluster_id,
                     Scenes.cluster_id,
                     Thermostat.cluster_id,
+                    TuyaManufClusterAttributes.cluster_id,
+                ],
+                OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
+            }
+        },
+    }
+
+    replacement = {
+        ENDPOINTS: {
+            1: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.THERMOSTAT,
+                INPUT_CLUSTERS: [
+                    Basic.cluster_id,
+                    Identify.cluster_id,
+                    Groups.cluster_id,
+                    Scenes.cluster_id,
+                    MaxsmartManufCluster,
+                    MaxsmartThermostat,
+                    MaxsmartUserInterface,
+                    MaxsmartWindowDetection,
+                    TuyaPowerConfigurationCluster,
+                ],
+                OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
+            },
+            2: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [
+                    MaxsmartChildLock,
+                ],
+                OUTPUT_CLUSTERS: [],
+            },
+            3: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayYear],
+                OUTPUT_CLUSTERS: [],
+            },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayMonth],
+                OUTPUT_CLUSTERS: [],
+            },
+            5: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayDay],
+                OUTPUT_CLUSTERS: [],
+            },
+            6: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayHour],
+                OUTPUT_CLUSTERS: [],
+            },
+            7: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayMinute],
+                OUTPUT_CLUSTERS: [],
+            },
+            8: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayTemperature],
+                OUTPUT_CLUSTERS: [],
+            },
+            9: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartAwayOperTime],
+                OUTPUT_CLUSTERS: [],
+            },
+            10: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartEcoTemperature],
+                OUTPUT_CLUSTERS: [],
+            },
+            11: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartComfortTemperature],
+                OUTPUT_CLUSTERS: [],
+            },
+            12: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartWindowDetectTemperature],
+                OUTPUT_CLUSTERS: [],
+            },
+            13: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartWindowDetectTime],
+                OUTPUT_CLUSTERS: [],
+            },
+            14: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartBoostCountdown],
+                OUTPUT_CLUSTERS: [],
+            },
+            15: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [MaxsmartTempCalibration],
+                OUTPUT_CLUSTERS: [],
+            },
+            16: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [
+                    MaxsmartLocalTempUpdate,
+                ],
+                OUTPUT_CLUSTERS: [],
+            },
+        }
+    }
+
+
+class Silvercrest3(TuyaThermostat):
+    """Silvercrest second version of Lidl Thermostatic radiator valve."""
+
+    def __init__(self, *args, **kwargs):
+        """Init device."""
+        self.thermostat_onoff_bus = Bus()
+        self.MaxsmartManufCluster_bus = Bus()
+        self.MaxsmartWindowDetection_bus = Bus()
+        self.MaxsmartAwayYear_bus = Bus()
+        self.MaxsmartAwayMonth_bus = Bus()
+        self.MaxsmartAwayDay_bus = Bus()
+        self.MaxsmartAwayHour_bus = Bus()
+        self.MaxsmartAwayMinute_bus = Bus()
+        self.MaxsmartAwayTemperature_bus = Bus()
+        self.MaxsmartAwayOperTime_bus = Bus()
+        self.MaxsmartEcoTemperature_bus = Bus()
+        self.MaxsmartComfortTemperature_bus = Bus()
+        self.MaxsmartWindowDetectTemperature_bus = Bus()
+        self.MaxsmartWindowDetectTime_bus = Bus()
+        self.MaxsmartBoostCountdown_bus = Bus()
+        self.MaxsmartTempCalibration_bus = Bus()
+        super().__init__(*args, **kwargs)
+
+    signature = {
+        # endpoint=1, profile=260, device_type=81, device_version=1, input_clusters=[4, 5, 61184, 0]
+        # output_clusters=[25, 10])
+        MODELS_INFO: [
+            ("_TZE200_uiyqstza", "TS0601"),
+        ],
+        ENDPOINTS: {
+            1: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.THERMOSTAT,
+                INPUT_CLUSTERS: [
+                    Basic.cluster_id,
+                    Groups.cluster_id,
+                    Scenes.cluster_id,
                     TuyaManufClusterAttributes.cluster_id,
                 ],
                 OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
