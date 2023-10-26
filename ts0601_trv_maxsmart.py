@@ -4,6 +4,7 @@ import math
 from typing import Optional, Union
 
 import zigpy.types as t
+from zhaquirks.tuya.mcu import EnchantedDevice
 from zhaquirks import Bus, LocalDataCluster
 from zhaquirks.const import (
     DEVICE_TYPE,
@@ -19,6 +20,7 @@ from zhaquirks.tuya import (
     TuyaThermostat,
     TuyaThermostatCluster,
     TuyaUserInterfaceCluster,
+    TuyaEnchantableCluster
 )
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
@@ -1274,7 +1276,7 @@ class MaxsmartWindowDetectTime(LocalDataCluster, AnalogOutput):
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
 
 
-class MaxsmartWindowDetection(LocalDataCluster, BinaryInput):
+class MaxsmartWindowDetection(TuyaEnchantableCluster, LocalDataCluster, BinaryInput):
     """Binary cluster for the window detection function."""
 
     def __init__(self, *args, **kwargs):
@@ -1894,7 +1896,7 @@ class Silvercrest2(TuyaThermostat):
     }
 
 
-class Silvercrest3(TuyaThermostat):
+class Silvercrest3(EnchantedDevice, TuyaThermostat):
     """Silvercrest second version of Lidl Thermostatic radiator valve."""
 
     def __init__(self, *args, **kwargs):
@@ -1926,7 +1928,7 @@ class Silvercrest3(TuyaThermostat):
         ENDPOINTS: {
             1: {
                 PROFILE_ID: zha.PROFILE_ID,
-                DEVICE_TYPE: zha.DeviceType.THERMOSTAT,
+                DEVICE_TYPE: zha.DeviceType.SMART_PLUG,
                 INPUT_CLUSTERS: [
                     Basic.cluster_id,
                     Groups.cluster_id,
