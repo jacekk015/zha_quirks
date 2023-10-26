@@ -4,7 +4,6 @@ import math
 from typing import Optional, Union
 
 import zigpy.types as t
-from zhaquirks.tuya.mcu import EnchantedDevice
 from zhaquirks import Bus, LocalDataCluster
 from zhaquirks.const import (
     DEVICE_TYPE,
@@ -15,13 +14,16 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    TuyaEnchantableCluster,
+    TuyaManufCluster,
     TuyaManufClusterAttributes,
     TuyaPowerConfigurationCluster,
     TuyaThermostat,
     TuyaThermostatCluster,
+    TuyaTimePayload,
     TuyaUserInterfaceCluster,
-    TuyaEnchantableCluster
 )
+from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
 from zigpy.zcl.clusters.general import (
@@ -436,6 +438,31 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
         data.append(int(away_data["year"] - 2000))
 
         return data
+
+
+class Silvercrest3ManufCluster(MaxsmartManufCluster):
+    """Manufacturer Specific Cluster of some thermostatic valves set_time manufacturer to None."""
+
+    server_commands = {
+        0x0000: foundation.ZCLCommandDef(
+            "set_data",
+            {"param": TuyaManufCluster.Command},
+            False,
+            is_manufacturer_specific=True,
+        ),
+        0x0010: foundation.ZCLCommandDef(
+            "mcu_version_req",
+            {"param": t.uint16_t},
+            False,
+            is_manufacturer_specific=True,
+        ),
+        0x0024: foundation.ZCLCommandDef(
+            "set_time",
+            {"param": TuyaTimePayload},
+            False,
+            is_manufacturer_specific=False,
+        ),
+    }
 
 
 class MaxsmartThermostat(TuyaThermostatCluster):
@@ -1950,7 +1977,7 @@ class Silvercrest3(EnchantedDevice, TuyaThermostat):
                     Identify.cluster_id,
                     Groups.cluster_id,
                     Scenes.cluster_id,
-                    MaxsmartManufCluster,
+                    Silvercrest3ManufCluster,
                     MaxsmartThermostat,
                     MaxsmartUserInterface,
                     MaxsmartWindowDetection,
