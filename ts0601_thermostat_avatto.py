@@ -174,7 +174,7 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             "set_time",
             {"param": TuyaTimePayload},
             False,
-            is_manufacturer_specific=True,
+            is_manufacturer_specific=False,
         ),
     }
 
