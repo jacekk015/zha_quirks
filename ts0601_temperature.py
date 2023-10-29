@@ -289,7 +289,7 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.tuya_onoff_bus.listener_event("unit_change", value)
 
 
-class TuyaSensorTemperature(LocalDataCluster, TemperatureMeasurement):
+class TuyaSensorTemperature(TemperatureMeasurement):
     """Temperature cluster."""
 
     def __init__(self, *args, **kwargs):
@@ -302,7 +302,7 @@ class TuyaSensorTemperature(LocalDataCluster, TemperatureMeasurement):
         self._update_attribute(self.attributes_by_name["measured_value"].id, value)
 
 
-class TuyaSensorRelativeHumidity(LocalDataCluster, RelativeHumidity):
+class TuyaSensorRelativeHumidity(RelativeHumidity):
     """Humidity cluster."""
 
     def __init__(self, *args, **kwargs):
