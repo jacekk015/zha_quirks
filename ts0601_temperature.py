@@ -785,8 +785,6 @@ class TuyaSensor(EnchantedDevice, CustomDevice):
                     Groups.cluster_id,
                     Scenes.cluster_id,
                     TuyaSensorManufCluster,
-                    TuyaSensorTemperature,
-                    TuyaSensorRelativeHumidity,
                     TuyaPowerConfigurationCluster2AAA,
                 ],
                 OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
@@ -867,6 +865,18 @@ class TuyaSensor(EnchantedDevice, CustomDevice):
                 PROFILE_ID: zha.PROFILE_ID,
                 DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
                 INPUT_CLUSTERS: [TuyaTempUnit],
+                OUTPUT_CLUSTERS: [],
+            },
+            15: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [TuyaSensorTemperature],
+                OUTPUT_CLUSTERS: [],
+            },
+            16: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [TuyaSensorRelativeHumidity],
                 OUTPUT_CLUSTERS: [],
             },
         }
