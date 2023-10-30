@@ -205,11 +205,11 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
         super()._update_attribute(attrid, value)
         if attrid == TUYA_TEMPERATURE_ATTR:
             self.endpoint.device.TuyaSensorTemperature_bus.listener_event(
-                "set_value", value * 10
+                "set_value", value / 10
             )
         elif attrid == TUYA_HUMIDITY_ATTR:
             self.endpoint.device.TuyaSensorRelativeHumidity_bus.listener_event(
-                "set_value", value * 100
+                "set_value", value
             )
         elif attrid == TUYA_BATTERY_ATTR:
             self.endpoint.device.battery_bus.listener_event("battery_change", value)
@@ -320,7 +320,7 @@ class TuyaSensorRelativeHumidity(LocalDataCluster, AnalogOutput):
         )
         self._update_attribute(self.attributes_by_name["resolution"].id, 1)
         self._update_attribute(self.attributes_by_name["application_type"].id, 1 << 16)
-        self._update_attribute(self.attributes_by_name["engineering_units"].id, 29)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 98)
 
     def set_value(self, value):
         """Set value."""
