@@ -289,26 +289,38 @@ class TuyaSensorManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.tuya_onoff_bus.listener_event("unit_change", value)
 
 
-class TuyaSensorTemperature(TemperatureMeasurement):
+class TuyaSensorTemperature(LocalDataCluster, AnalogOutput):
     """Temperature cluster."""
 
     def __init__(self, *args, **kwargs):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaSensorTemperature_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Temperature Measurement"
+        )
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
 
     def set_value(self, value):
         """Set value."""
         self._update_attribute(self.attributes_by_name["measured_value"].id, value)
 
 
-class TuyaSensorRelativeHumidity(RelativeHumidity):
+class TuyaSensorRelativeHumidity(LocalDataCluster, AnalogOutput):
     """Humidity cluster."""
 
     def __init__(self, *args, **kwargs):
         """Init."""
         super().__init__(*args, **kwargs)
         self.endpoint.device.TuyaSensorRelativeHumidity_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Relative Humidity Measurement"
+        )
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 1 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 29)
 
     def set_value(self, value):
         """Set value."""
