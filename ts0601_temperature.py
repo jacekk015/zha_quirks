@@ -305,7 +305,7 @@ class TuyaSensorTemperature(LocalDataCluster, AnalogOutput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attributes_by_name["measured_value"].id, value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaSensorRelativeHumidity(LocalDataCluster, AnalogOutput):
@@ -324,7 +324,7 @@ class TuyaSensorRelativeHumidity(LocalDataCluster, AnalogOutput):
 
     def set_value(self, value):
         """Set value."""
-        self._update_attribute(self.attributes_by_name["measured_value"].id, value)
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
 
 
 class TuyaPowerConfigurationCluster2AAA(TuyaPowerConfigurationCluster):
