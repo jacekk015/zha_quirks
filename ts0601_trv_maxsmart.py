@@ -464,6 +464,39 @@ class Silvercrest3ManufCluster(MaxsmartManufCluster):
         ),
     }
 
+    client_commands = {
+        0x0001: foundation.ZCLCommandDef(
+            "get_data",
+            {"param": TuyaManufCluster.Command},
+            True,
+            is_manufacturer_specific=True,
+        ),
+        0x0002: foundation.ZCLCommandDef(
+            "set_data_response",
+            {"param": TuyaManufCluster.Command},
+            True,
+            is_manufacturer_specific=True,
+        ),
+        0x0006: foundation.ZCLCommandDef(
+            "active_status_report",
+            {"param": TuyaManufCluster.Command},
+            True,
+            is_manufacturer_specific=True,
+        ),
+        0x0011: foundation.ZCLCommandDef(
+            "mcu_version_rsp",
+            {"param": TuyaManufCluster.MCUVersionRsp},
+            True,
+            is_manufacturer_specific=True,
+        ),
+        0x0024: foundation.ZCLCommandDef(
+            "set_time_request",
+            {"param": t.data16},
+            True,
+            is_manufacturer_specific=False,
+        ),
+    }
+
 
 class MaxsmartThermostat(TuyaThermostatCluster):
     """Thermostat cluster for some thermostatic valves."""
