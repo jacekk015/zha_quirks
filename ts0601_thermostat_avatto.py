@@ -203,7 +203,11 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             lambda value: value * 100,
             lambda value: value * 10,
         ),
-        AVATTO_TEMP_CALIBRATION_ATTR: ("local_temperature_calibration", None, None),
+        AVATTO_TEMP_CALIBRATION_ATTR: (
+            "local_temperature_calibration",
+            None,
+            lambda value: value * 10,
+        ),
     }
 
     def _update_attribute(self, attrid, value):
@@ -240,7 +244,7 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event("mode_change", value)
         elif attrid == AVATTO_TEMP_CALIBRATION_ATTR:
             self.endpoint.device.AvattoTempCalibration_bus.listener_event(
-                "set_value", value
+                "set_value", value / 10
             )
         elif attrid == AVATTO_HEAT_STATE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event(
@@ -298,7 +302,7 @@ class AvattoThermostat(TuyaThermostatCluster):
         "local_temperature_calibration": (
             AVATTO_TEMP_CALIBRATION_ATTR,
             lambda value: value,
-            lambda value: value,
+            lambda value: round(value / 10),
         ),
         "occupied_heating_setpoint": (
             AVATTO_TARGET_TEMP_ATTR,
@@ -457,7 +461,7 @@ class AvattoTempCalibration(LocalDataCluster, AnalogOutput):
             await AvattoManufClusterSelf[
                 self.endpoint.device.ieee
             ].endpoint.tuya_manufacturer.write_attributes(
-                {AVATTO_TEMP_CALIBRATION_ATTR: value},
+                {AVATTO_TEMP_CALIBRATION_ATTR: value * 10},
                 manufacturer=None,
             )
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
