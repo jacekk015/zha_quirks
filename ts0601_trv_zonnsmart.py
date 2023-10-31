@@ -22,7 +22,15 @@ from zhaquirks.tuya import (
 )
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
-from zigpy.zcl.clusters.general import Basic, Groups, OnOff, Ota, Scenes, Time
+from zigpy.zcl.clusters.general import (
+    AnalogOutput,
+    Basic,
+    Groups,
+    OnOff,
+    Ota,
+    Scenes,
+    Time,
+)
 from zigpy.zcl.clusters.hvac import Thermostat
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,6 +48,9 @@ ZONNSMART_BOOST_TIME_ATTR = 0x0265  # BOOST mode operating time in (sec)
 ZONNSMART_UPTIME_TIME_ATTR = (
     0x0024  # Seems to be the uptime attribute (sent hourly, increases) [0,200]
 )
+ZONNSMART_TEMP_CALIBRATION_ATTR = 0x021B  # temperature calibration (decidegree)
+ZONNSMART_COMFORT_TEMP_ATTR = 0x0268  # [0, 0, 0, 210] comfort temp in auto (decidegree)
+ZONNSMART_ECO_TEMP_ATTR = 0x0269  # [0, 0, 0, 170] eco temp in auto (decidegree)
 ZONNSMARTManufClusterSelf = {}
 
 
@@ -150,15 +161,22 @@ class ZONNSMARTManufCluster(TuyaManufClusterAttributes):
     attributes = TuyaManufClusterAttributes.attributes.copy()
     attributes.update(
         {
-            ZONNSMART_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t),
-            ZONNSMART_WINDOW_DETECT_ATTR: ("window_detection", t.uint8_t),
-            ZONNSMART_TARGET_TEMP_ATTR: ("target_temperature", t.uint32_t),
-            ZONNSMART_TEMPERATURE_ATTR: ("temperature", t.uint32_t),
-            ZONNSMART_BATTERY_ATTR: ("battery", t.uint32_t),
-            ZONNSMART_MODE_ATTR: ("mode", t.uint8_t),
-            ZONNSMART_BOOST_TIME_ATTR: ("boost_duration_seconds", t.uint32_t),
-            ZONNSMART_UPTIME_TIME_ATTR: ("uptime", t.uint32_t),
-            ZONNSMART_HEATING_STOPPING: ("heating_stop", t.uint8_t),
+            ZONNSMART_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
+            ZONNSMART_WINDOW_DETECT_ATTR: ("window_detection", t.uint8_t, True),
+            ZONNSMART_TARGET_TEMP_ATTR: ("target_temperature", t.uint32_t, True),
+            ZONNSMART_TEMPERATURE_ATTR: ("temperature", t.uint32_t, True),
+            ZONNSMART_BATTERY_ATTR: ("battery", t.uint32_t, True),
+            ZONNSMART_MODE_ATTR: ("mode", t.uint8_t, True),
+            ZONNSMART_BOOST_TIME_ATTR: ("boost_duration_seconds", t.uint32_t, True),
+            ZONNSMART_UPTIME_TIME_ATTR: ("uptime", t.uint32_t, True),
+            ZONNSMART_HEATING_STOPPING: ("heating_stop", t.uint8_t, True),
+            ZONNSMART_TEMP_CALIBRATION_ATTR: (
+                "temperature_calibration",
+                t.int32s,
+                True,
+            ),
+            ZONNSMART_COMFORT_TEMP_ATTR: ("comfort_mode_temperature", t.uint32_t, True),
+            ZONNSMART_ECO_TEMP_ATTR: ("eco_mode_temperature", t.uint32_t, True),
         }
     )
 
@@ -168,8 +186,10 @@ class ZONNSMARTManufCluster(TuyaManufClusterAttributes):
             "occupied_heating_setpoint",
             lambda value: value * 10,
         ),
-        ZONNSMART_BOOST_TIME_ATTR: ("boost_duration_seconds", None),
-        ZONNSMART_UPTIME_TIME_ATTR: ("uptime_duration_hours", None),
+        ZONNSMART_TEMP_CALIBRATION_ATTR: (
+            "local_temperature_calibration",
+            lambda value: value * 10,
+        ),
     }
 
     def _update_attribute(self, attrid, value):
@@ -197,6 +217,22 @@ class ZONNSMARTManufCluster(TuyaManufClusterAttributes):
             )
         elif attrid == ZONNSMART_BATTERY_ATTR:
             self.endpoint.device.battery_bus.listener_event("battery_change", value)
+        elif attrid == ZONNSMART_TEMP_CALIBRATION_ATTR:
+            self.endpoint.device.ZonnsmartTempCalibration_bus.listener_event(
+                "set_value", value / 10
+            )
+        elif attrid == ZONNSMART_COMFORT_TEMP_ATTR:
+            self.endpoint.device.ZonnsmartComfortTemp_bus.listener_event(
+                "set_value", value / 10
+            )
+        elif attrid == ZONNSMART_ECO_TEMP_ATTR:
+            self.endpoint.device.ZonnsmartEcoTemp_bus.listener_event(
+                "set_value", value / 10
+            )
+        elif attrid == ZONNSMART_BOOST_TIME_ATTR:
+            self.endpoint.device.thermostat_onoff_bus.listener_event(
+                "boost_change", 1 if value > 0 else 0
+            )
 
 
 class ZONNSMARTThermostat(TuyaThermostatCluster):
@@ -212,7 +248,10 @@ class ZONNSMARTThermostat(TuyaThermostatCluster):
             lambda value: round(value / 10),
         ),
         "operation_preset": (ZONNSMART_MODE_ATTR, None),
-        "boost_duration_seconds": (ZONNSMART_BOOST_TIME_ATTR, None),
+        "local_temperature_calibration": (
+            ZONNSMART_TEMP_CALIBRATION_ATTR,
+            lambda value: round(value / 10),
+        ),
     }
 
     def map_attribute(self, attribute, value):
@@ -293,6 +332,142 @@ class ZONNSMARTChildLock(CustomTuyaOnOff):
             return {ZONNSMART_CHILD_LOCK_ATTR: value}
 
 
+class ZonnsmartBoost(CustomTuyaOnOff):
+    """On/Off cluster for the boost function."""
+
+    def boost_change(self, value):
+        """Boost change."""
+        self._update_attribute(self.attributes_by_name["on_off"].id, value)
+
+    def map_attribute(self, attribute, value):
+        """Map standardized attribute value to dict of manufacturer values."""
+        if attribute == "on_off":
+            return {ZONNSMART_BOOST_TIME_ATTR: 299 if value else 0}
+
+
+class ZonnsmartTempCalibration(LocalDataCluster, AnalogOutput):
+    """Analog output for Temperature calibration."""
+
+    def __init__(self, *args, **kwargs):
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.endpoint.device.ZonnsmartTempCalibration_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Temperature calibration"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 5.5)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, -5.5)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
+
+    def set_value(self, value):
+        """Set value."""
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
+
+    def get_value(self):
+        """Get value."""
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
+
+    async def write_attributes(self, attributes, manufacturer=None):
+        """Override the default Cluster write_attributes."""
+        for attrid, value in attributes.items():
+            if isinstance(attrid, str):
+                attrid = self.attributes_by_name[attrid].id
+            if attrid not in self.attributes:
+                self.error("%d is not a valid attribute id", attrid)
+                continue
+            self._update_attribute(attrid, value)
+            await ZONNSMARTManufClusterSelf[
+                self.endpoint.device.ieee
+            ].endpoint.tuya_manufacturer.write_attributes(
+                {ZONNSMART_TEMP_CALIBRATION_ATTR: value * 10}, manufacturer=None
+            )
+        return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
+
+
+class ZonnsmartComfortTemp(LocalDataCluster, AnalogOutput):
+    """Analog output for Comfort Temperature."""
+
+    def __init__(self, *args, **kwargs):
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.endpoint.device.ZonnsmartComfortTemp_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Comfort Temperature"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 30)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 5)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.5)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
+
+    def set_value(self, value):
+        """Set value."""
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
+
+    def get_value(self):
+        """Get value."""
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
+
+    async def write_attributes(self, attributes, manufacturer=None):
+        """Override the default Cluster write_attributes."""
+        for attrid, value in attributes.items():
+            if isinstance(attrid, str):
+                attrid = self.attributes_by_name[attrid].id
+            if attrid not in self.attributes:
+                self.error("%d is not a valid attribute id", attrid)
+                continue
+            self._update_attribute(attrid, value)
+            await ZONNSMARTManufClusterSelf[
+                self.endpoint.device.ieee
+            ].endpoint.tuya_manufacturer.write_attributes(
+                {ZONNSMART_COMFORT_TEMP_ATTR: value * 10}, manufacturer=None
+            )
+        return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
+
+
+class ZonnsmartEcoTemp(LocalDataCluster, AnalogOutput):
+    """Analog output for Eco Temperature."""
+
+    def __init__(self, *args, **kwargs):
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.endpoint.device.ZonnsmartEcoTemp_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Eco Temperature"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 30)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 5)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 0.5)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
+
+    def set_value(self, value):
+        """Set value."""
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
+
+    def get_value(self):
+        """Get value."""
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
+
+    async def write_attributes(self, attributes, manufacturer=None):
+        """Override the default Cluster write_attributes."""
+        for attrid, value in attributes.items():
+            if isinstance(attrid, str):
+                attrid = self.attributes_by_name[attrid].id
+            if attrid not in self.attributes:
+                self.error("%d is not a valid attribute id", attrid)
+                continue
+            self._update_attribute(attrid, value)
+            await ZONNSMARTManufClusterSelf[
+                self.endpoint.device.ieee
+            ].endpoint.tuya_manufacturer.write_attributes(
+                {ZONNSMART_ECO_TEMP_ATTR: value * 10}, manufacturer=None
+            )
+        return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
+
+
 class ZonnsmartTV01_ZG(TuyaThermostat):
     """ZONNSMART TV01-ZG Thermostatic radiator valve."""
 
@@ -300,6 +475,9 @@ class ZonnsmartTV01_ZG(TuyaThermostat):
         """Init device."""
         self.ZONNSMARTManufCluster_bus = Bus()
         self.thermostat_onoff_bus = Bus()
+        self.ZonnsmartTempCalibration_bus = Bus()
+        self.ZonnsmartComfortTemp_bus = Bus()
+        self.ZonnsmartEcoTemp_bus = Bus()
         super().__init__(*args, **kwargs)
 
     signature = {
@@ -352,6 +530,30 @@ class ZonnsmartTV01_ZG(TuyaThermostat):
                 PROFILE_ID: zha.PROFILE_ID,
                 DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
                 INPUT_CLUSTERS: [ZONNSMARTChildLock],
+                OUTPUT_CLUSTERS: [],
+            },
+            3: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [ZonnsmartTempCalibration],
+                OUTPUT_CLUSTERS: [],
+            },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [ZonnsmartComfortTemp],
+                OUTPUT_CLUSTERS: [],
+            },
+            5: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [ZonnsmartEcoTemp],
+                OUTPUT_CLUSTERS: [],
+            },
+            6: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [ZonnsmartBoost],
                 OUTPUT_CLUSTERS: [],
             },
         }
