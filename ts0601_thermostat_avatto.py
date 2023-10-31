@@ -217,7 +217,7 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz" or (
                 attrid == AVATTO_TEMPERATURE_ATTR
                 and self.endpoint.device.manufacturer
-                in ("_TZE200_u9bfwha0", "_TZE200_aoclfnxz", "_TZE204_aoclfnxz")
+                in ("_TZE204_u9bfwha0", "_TZE200_u9bfwha0", "_TZE200_aoclfnxz", "_TZE204_aoclfnxz")
             ):
                 self.endpoint.device.thermostat_bus.listener_event(
                     "temperature_change",
@@ -548,6 +548,7 @@ class Beok(EnchantedDevice, TuyaThermostat):
         MODELS_INFO: [
             ("_TZE200_2ekuz3dz", "TS0601"),
             ("_TZE204_aoclfnxz", "TS0601"),
+            ("_TZE204_u9bfwha0", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
