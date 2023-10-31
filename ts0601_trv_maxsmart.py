@@ -448,7 +448,7 @@ class Silvercrest3ManufCluster(MaxsmartManufCluster):
             "set_data",
             {"param": TuyaManufCluster.Command},
             False,
-            is_manufacturer_specific=True,
+            is_manufacturer_specific=False,
         ),
         0x0010: foundation.ZCLCommandDef(
             "mcu_version_req",
