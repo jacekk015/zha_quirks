@@ -121,7 +121,6 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
         """Override the default Cluster command."""
 
         if command_id in (0x0000, 0x0001, 0x0002):
-
             if command_id == 0x0000:
                 value = False
             elif command_id == 0x0001:
@@ -203,11 +202,6 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             lambda value: value * 100,
             lambda value: value * 10,
         ),
-        AVATTO_TEMP_CALIBRATION_ATTR: (
-            "local_temperature_calibration",
-            None,
-            lambda value: value * 10,
-        ),
     }
 
     def _update_attribute(self, attrid, value):
@@ -217,7 +211,12 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz" or (
                 attrid == AVATTO_TEMPERATURE_ATTR
                 and self.endpoint.device.manufacturer
-                in ("_TZE204_u9bfwha0", "_TZE200_u9bfwha0", "_TZE200_aoclfnxz", "_TZE204_aoclfnxz")
+                in (
+                    "_TZE204_u9bfwha0",
+                    "_TZE200_u9bfwha0",
+                    "_TZE200_aoclfnxz",
+                    "_TZE204_aoclfnxz",
+                )
             ):
                 self.endpoint.device.thermostat_bus.listener_event(
                     "temperature_change",
@@ -235,6 +234,16 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
                     else self.DIRECT_MAPPED_ATTRS[attrid][1](value),
                 )
 
+        if attrid == AVATTO_TEMP_CALIBRATION_ATTR:
+            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz":
+                self.endpoint.device.AvattoTempCalibration_bus.listener_event(
+                    "set_value", value / 10
+                )
+            else:
+                self.endpoint.device.AvattoTempCalibration_bus.listener_event(
+                    "set_value", value
+                )
+
         if attrid == AVATTO_CHILD_LOCK_ATTR:
             self.endpoint.device.ui_bus.listener_event("child_lock_change", value)
             self.endpoint.device.thermostat_onoff_bus.listener_event(
@@ -242,10 +251,6 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             )
         elif attrid == AVATTO_MODE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event("mode_change", value)
-        elif attrid == AVATTO_TEMP_CALIBRATION_ATTR:
-            self.endpoint.device.AvattoTempCalibration_bus.listener_event(
-                "set_value", value / 10
-            )
         elif attrid == AVATTO_HEAT_STATE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event(
                 "state_change", not value
@@ -299,11 +304,6 @@ class AvattoThermostat(TuyaThermostatCluster):
     )
 
     DIRECT_MAPPING_ATTRS = {
-        "local_temperature_calibration": (
-            AVATTO_TEMP_CALIBRATION_ATTR,
-            lambda value: value,
-            lambda value: round(value / 10),
-        ),
         "occupied_heating_setpoint": (
             AVATTO_TARGET_TEMP_ATTR,
             lambda value: round(value / 100),
@@ -458,12 +458,21 @@ class AvattoTempCalibration(LocalDataCluster, AnalogOutput):
                 continue
             self._update_attribute(attrid, value)
 
-            await AvattoManufClusterSelf[
-                self.endpoint.device.ieee
-            ].endpoint.tuya_manufacturer.write_attributes(
-                {AVATTO_TEMP_CALIBRATION_ATTR: value * 10},
-                manufacturer=None,
-            )
+            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz":
+                await AvattoManufClusterSelf[
+                    self.endpoint.device.ieee
+                ].endpoint.tuya_manufacturer.write_attributes(
+                    {AVATTO_TEMP_CALIBRATION_ATTR: value * 10},
+                    manufacturer=None,
+                )
+            else:
+                await AvattoManufClusterSelf[
+                    self.endpoint.device.ieee
+                ].endpoint.tuya_manufacturer.write_attributes(
+                    {AVATTO_TEMP_CALIBRATION_ATTR: value},
+                    manufacturer=None,
+                )
+
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
 
 
