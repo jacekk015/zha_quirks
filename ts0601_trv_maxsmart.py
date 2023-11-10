@@ -154,7 +154,6 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
         """Override the default Cluster command."""
 
         if command_id in (0x0000, 0x0001, 0x0002):
-
             if command_id == 0x0000:
                 value = False
             elif command_id == 0x0001:
@@ -618,6 +617,8 @@ class MaxsmartThermostat(TuyaThermostatCluster):
                 attribute_mode = "occupied_heating_setpoint_auto"
             elif mode == self.Preset.Manual:
                 attribute_mode = "occupied_heating_setpoint_manual"
+            elif mode == self.Preset.Boost:
+                attribute_mode = "occupied_heating_setpoint_auto"
 
             if mode != self.Preset.Away:
                 return {
