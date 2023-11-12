@@ -49,6 +49,7 @@ ME167_STATE_ATTR = 0x0403  # [1] idle [0] heating /!\ inverted
 ME167_MIN_TEMPERATURE_VAL = 5  # degrees
 # maximum limit of temperature setting
 ME167_MAX_TEMPERATURE_VAL = 35  # degrees
+ME167_FROST_PROTECTION = 0x0124
 ME167ManufClusterSelf = {}
 
 
@@ -121,7 +122,6 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
         """Override the default Cluster command."""
 
         if command_id in (0x0000, 0x0001, 0x0002):
-
             if command_id == 0x0000:
                 value = False
             elif command_id == 0x0001:
@@ -187,6 +187,7 @@ class ME167ManufCluster(TuyaManufClusterAttributes):
             ME167_MODE_ATTR: ("mode", t.uint8_t, True),
             ME167_STATE_ATTR: ("state", t.uint8_t, True),
             ME167_BATTERY_STATE_ATTR: ("battery_state", t.uint8_t, True),
+            ME167_FROST_PROTECTION: ("frost_protection", t.uint8_t, True),
         }
     )
 
@@ -231,6 +232,10 @@ class ME167ManufCluster(TuyaManufClusterAttributes):
         elif attrid == ME167_TEMP_CALIBRATION_ATTR:
             self.endpoint.device.ME167TempCalibration_bus.listener_event(
                 "set_value", value
+            )
+        elif attrid == ME167_FROST_PROTECTION:
+            self.endpoint.device.thermostat_onoff_bus.listener_event(
+                "frost_protection_change", value
             )
 
 
@@ -413,6 +418,19 @@ class ME167TempCalibration(LocalDataCluster, AnalogOutput):
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
 
 
+class ME167FrostProtection(CustomTuyaOnOff):
+    """On/Off cluster for the frost protection function."""
+
+    def frost_protection_change(self, value):
+        """Frost protection change."""
+        self._update_attribute(self.attributes_by_name["on_off"].id, value)
+
+    def map_attribute(self, attribute, value):
+        """Map standardized attribute value to dict of manufacturer values."""
+        if attribute == "on_off":
+            return {ME167_FROST_PROTECTION: value}
+
+
 class ME167(TuyaThermostat):
     """ME167 Thermostatic radiator valve and clones."""
 
@@ -443,8 +461,8 @@ class ME167(TuyaThermostat):
         MODELS_INFO: [
             ("_TZE200_bvu2wnxz", "TS0601"),
             ("_TZE200_6rdj8dzm", "TS0601"),
-            ("_TZE200_p3dbf6qs", "TS0601"), # model: 'ME168', vendor: 'Avatto'
-            ("_TZE200_rxntag7i", "TS0601"), # model: 'ME168', vendor: 'Avatto'
+            ("_TZE200_p3dbf6qs", "TS0601"),  # model: 'ME168', vendor: 'Avatto'
+            ("_TZE200_rxntag7i", "TS0601"),  # model: 'ME168', vendor: 'Avatto'
         ],
         ENDPOINTS: {
             1: {
@@ -489,6 +507,14 @@ class ME167(TuyaThermostat):
                 PROFILE_ID: zha.PROFILE_ID,
                 DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
                 INPUT_CLUSTERS: [ME167TempCalibration],
+                OUTPUT_CLUSTERS: [],
+            },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [
+                    ME167FrostProtection,
+                ],
                 OUTPUT_CLUSTERS: [],
             },
         }
