@@ -271,10 +271,10 @@ class RtiManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.RtiSoftwareVersion_bus.listener_event(
                 "set_value", value
             )
-        elif attrid in (RTI_TEMPERATURE_ATTR, RTI_TARGET_TEMP_ATTR):
-            self.endpoint.device.thermostat_bus.listener_event(
-                "hass_climate_state_change", attrid, value
-            )
+#        elif attrid in (RTI_TEMPERATURE_ATTR, RTI_TARGET_TEMP_ATTR):
+#            self.endpoint.device.thermostat_bus.listener_event(
+#                "hass_climate_state_change", attrid, value
+#            )
 
 
 class RtiThermostat(TuyaThermostatCluster):
