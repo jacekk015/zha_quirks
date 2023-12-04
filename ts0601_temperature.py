@@ -13,6 +13,7 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    TuyaEnchantableCluster,
     TuyaManufCluster,
     TuyaManufClusterAttributes,
     TuyaPowerConfigurationCluster,
@@ -123,7 +124,6 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
         """Override the default Cluster command."""
 
         if command_id in (0x0000, 0x0001, 0x0002):
-
             if command_id == 0x0000:
                 value = False
             elif command_id == 0x0001:
@@ -148,7 +148,7 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
         return [command_id, foundation.Status.UNSUP_CLUSTER_COMMAND]
 
 
-class TuyaSensorManufCluster(TuyaManufClusterAttributes):
+class TuyaSensorManufCluster(TuyaEnchantableCluster, TuyaManufClusterAttributes):
     """Manufacturer Specific Cluster of thermostatic valves."""
 
     def __init__(self, *args, **kwargs):
