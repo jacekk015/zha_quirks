@@ -386,6 +386,12 @@ class BecaThermostat(TuyaThermostatCluster):
             else:
                 self.error("Unsupported value for Occupancy")
 
+        if attribute == "system_mode":
+            if value == self.SystemMode.Off:
+                return {BECA_VALVE_STATE_ONOFF_ATTR: 0}
+            else:
+                return {BECA_VALVE_STATE_ONOFF_ATTR: 1}
+
         if attribute in self.SCHEDULE_ATTRS:
             data = data288()
             for num, (attr, default) in enumerate(self.SCHEDULE_ATTRS.items()):
