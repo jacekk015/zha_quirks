@@ -1,4 +1,5 @@
 """Avatto TRV devices support."""
+
 import logging
 from typing import Optional, Union
 
@@ -208,7 +209,10 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
         """Override default _update_attribute."""
         super()._update_attribute(attrid, value)
         if attrid in self.DIRECT_MAPPED_ATTRS:
-            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz" or (
+            if self.endpoint.device.manufacturer in (
+                "_TZE200_2ekuz3dz",
+                "_TZE200_g9a3awaj",
+            ) or (
                 attrid == AVATTO_TEMPERATURE_ATTR
                 and self.endpoint.device.manufacturer
                 in (
@@ -221,21 +225,28 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
                 self.endpoint.device.thermostat_bus.listener_event(
                     "temperature_change",
                     self.DIRECT_MAPPED_ATTRS[attrid][0],
-                    value
-                    if self.DIRECT_MAPPED_ATTRS[attrid][2] is None
-                    else self.DIRECT_MAPPED_ATTRS[attrid][2](value),
+                    (
+                        value
+                        if self.DIRECT_MAPPED_ATTRS[attrid][2] is None
+                        else self.DIRECT_MAPPED_ATTRS[attrid][2](value)
+                    ),
                 )
             else:
                 self.endpoint.device.thermostat_bus.listener_event(
                     "temperature_change",
                     self.DIRECT_MAPPED_ATTRS[attrid][0],
-                    value
-                    if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
-                    else self.DIRECT_MAPPED_ATTRS[attrid][1](value),
+                    (
+                        value
+                        if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
+                        else self.DIRECT_MAPPED_ATTRS[attrid][1](value)
+                    ),
                 )
 
         if attrid == AVATTO_TEMP_CALIBRATION_ATTR:
-            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz":
+            if self.endpoint.device.manufacturer in (
+                "_TZE200_2ekuz3dz",
+                "_TZE200_g9a3awaj",
+            ):
                 self.endpoint.device.AvattoTempCalibration_bus.listener_event(
                     "set_value", value / 10
                 )
@@ -252,9 +263,14 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
         elif attrid == AVATTO_MODE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event("mode_change", value)
         elif attrid == AVATTO_HEAT_STATE_ATTR:
-            self.endpoint.device.thermostat_bus.listener_event(
-                "state_change", not value
-            )
+            if self.endpoint.device.manufacturer == "_TZE200_g9a3awaj":
+                self.endpoint.device.thermostat_bus.listener_event(
+                    "state_change", value
+                )
+            else:
+                self.endpoint.device.thermostat_bus.listener_event(
+                    "state_change", not value
+                )
         elif attrid == BEOK_HEAT_STATE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event("state_change", value)
         elif attrid == AVATTO_SYSTEM_MODE_ATTR:
@@ -330,17 +346,24 @@ class AvattoThermostat(TuyaThermostatCluster):
         """Map standardized attribute value to dict of manufacturer values."""
 
         if attribute in self.DIRECT_MAPPING_ATTRS:
-            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz":
+            if self.endpoint.device.manufacturer in (
+                "_TZE200_2ekuz3dz",
+                "_TZE200_g9a3awaj",
+            ):
                 return {
-                    self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                    if self.DIRECT_MAPPING_ATTRS[attribute][2] is None
-                    else self.DIRECT_MAPPING_ATTRS[attribute][2](value)
+                    self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                        value
+                        if self.DIRECT_MAPPING_ATTRS[attribute][2] is None
+                        else self.DIRECT_MAPPING_ATTRS[attribute][2](value)
+                    )
                 }
             else:
                 return {
-                    self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                    if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
-                    else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                    self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                        value
+                        if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
+                        else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                    )
                 }
 
         if attribute == "operation_preset":
@@ -458,7 +481,10 @@ class AvattoTempCalibration(LocalDataCluster, AnalogOutput):
                 continue
             self._update_attribute(attrid, value)
 
-            if self.endpoint.device.manufacturer == "_TZE200_2ekuz3dz":
+            if self.endpoint.device.manufacturer in (
+                "_TZE200_2ekuz3dz",
+                "_TZE200_g9a3awaj",
+            ):
                 await AvattoManufClusterSelf[
                     self.endpoint.device.ieee
                 ].endpoint.tuya_manufacturer.write_attributes(
