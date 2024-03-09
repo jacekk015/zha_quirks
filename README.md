@@ -76,6 +76,7 @@ logger:
             ("_TZE200_2ekuz3dz", "TS0601"),
             ("_TZE204_aoclfnxz", "TS0601"),
             ("_TZE204_u9bfwha0", "TS0601"),
+            ("_TZE200_g9a3awaj", "TS0601"),
         ],
 ```
 ## ts0601_thermostat_avatto2.py
