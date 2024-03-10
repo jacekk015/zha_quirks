@@ -208,7 +208,7 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
     def _update_attribute(self, attrid, value):
         """Override default _update_attribute."""
         super()._update_attribute(attrid, value)
-        if attrid in self.DIRECT_MAPPED_ATTRS:
+        if attrid in self.DIRECT_MAPPED_ATTRS and value < 500:
             if self.endpoint.device.manufacturer in (
                 "_TZE200_2ekuz3dz",
                 "_TZE200_g9a3awaj",
