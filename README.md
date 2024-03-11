@@ -56,7 +56,7 @@ logger:
             ("_TYST11_caj4jz0i", "aj4jz0i"),
         ],
 ```
-## ts0601_temperature.py
+## ts0601_temphumid.py
 ```
         MODELS_INFO: [
             ("_TZE200_bq5c8xfe", "TS0601"),
