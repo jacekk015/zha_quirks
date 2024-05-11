@@ -643,3 +643,65 @@ class Beok(EnchantedDevice, TuyaThermostat):
             },
         }
     }
+
+
+class Beok2(EnchantedDevice, TuyaThermostat):
+    """Beok Thermostatic radiator valve."""
+
+    def __init__(self, *args, **kwargs):
+        """Init device."""
+        self.thermostat_onoff_bus = Bus()
+        self.AvattoTempCalibration_bus = Bus()
+        super().__init__(*args, **kwargs)
+
+    signature = {
+        #  endpoint=1 profile=260 device_type=81 device_version=1 input_clusters=[0, 4, 5, 61184]
+        #  output_clusters=[10, 25]>
+        MODELS_INFO: [
+            ("_TZE200_g9a3awaj", "TS0601"),
+        ],
+        ENDPOINTS: {
+            1: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.SMART_PLUG,
+                INPUT_CLUSTERS: [
+                    Basic.cluster_id,
+                    Groups.cluster_id,
+                    Scenes.cluster_id,
+                    TuyaManufClusterAttributes.cluster_id,
+                ],
+                OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
+            },
+        },
+    }
+
+    replacement = {
+        ENDPOINTS: {
+            1: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.THERMOSTAT,
+                INPUT_CLUSTERS: [
+                    Basic.cluster_id,
+                    Groups.cluster_id,
+                    Scenes.cluster_id,
+                    AvattoManufCluster,
+                    AvattoThermostat,
+                    AvattoUserInterface,
+                    TuyaPowerConfigurationCluster,
+                ],
+                OUTPUT_CLUSTERS: [Time.cluster_id, Ota.cluster_id],
+            },
+            2: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.ON_OFF_SWITCH,
+                INPUT_CLUSTERS: [AvattoChildLock],
+                OUTPUT_CLUSTERS: [],
+            },
+            3: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [AvattoTempCalibration],
+                OUTPUT_CLUSTERS: [],
+            },
+        }
+    }
