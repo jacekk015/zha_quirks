@@ -675,6 +675,10 @@ class Rti2(TuyaThermostat):
         #  output_clusters=[10, 25]>
         MODELS_INFO: [
             ("_TZE200_bvrlmajk", "TS0601"),
+            #MOES TRV
+            ("_TZE204_9mjy74mp", "TS0601"),
+            ("_TZE200_9mjy74mp", "TS0601"),
+            ("_TZE200_rtrmfadk", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
