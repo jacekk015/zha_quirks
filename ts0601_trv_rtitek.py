@@ -735,7 +735,11 @@ class Rti(TuyaThermostat):
             ("_TZE200_a4bpgplm", "TS0601"),
             ("_TZE200_dv8abrrz", "TS0601"),
             ("_TZE200_z1tyspqw", "TS0601"),
+            #moes trv 
+            ("_TZE204_9mjy74mp", "TS0601"),
+            ("_TZE200_9mjy74mp", "TS0601"),
             ("_TZE200_rtrmfadk", "TS0601"),
+            
         ],
         ENDPOINTS: {
             1: {
