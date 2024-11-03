@@ -1,4 +1,5 @@
 """ME167 TRV devices support."""
+
 import logging
 from typing import Optional, Union
 
@@ -210,9 +211,11 @@ class ME167ManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event(
                 "temperature_change",
                 self.TEMPERATURE_ATTRS[attrid][0],
-                value
-                if self.TEMPERATURE_ATTRS[attrid][1] is None
-                else self.TEMPERATURE_ATTRS[attrid][1](value),
+                (
+                    value
+                    if self.TEMPERATURE_ATTRS[attrid][1] is None
+                    else self.TEMPERATURE_ATTRS[attrid][1](value)
+                ),
             )
         elif attrid == ME167_MODE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event("mode_change", value)
@@ -296,9 +299,11 @@ class ME167Thermostat(TuyaThermostatCluster):
 
         if attribute in self.DIRECT_MAPPING_ATTRS:
             return {
-                self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
-                else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                    value
+                    if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
+                    else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                )
             }
 
         if attribute in ("system_mode", "programing_oper_mode"):
@@ -463,6 +468,7 @@ class ME167(TuyaThermostat):
             ("_TZE200_6rdj8dzm", "TS0601"),
             ("_TZE200_p3dbf6qs", "TS0601"),  # model: 'ME168', vendor: 'Avatto'
             ("_TZE200_rxntag7i", "TS0601"),  # model: 'ME168', vendor: 'Avatto'
+            ("_TZE200_rxq4iti9", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
