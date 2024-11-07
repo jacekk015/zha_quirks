@@ -1,4 +1,5 @@
 """Maxsmart TRV devices support."""
+
 import logging
 import math
 from typing import Optional, Union
@@ -14,7 +15,7 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
-    TuyaEnchantableCluster,
+    EnchantedDevice,
     TuyaManufCluster,
     TuyaManufClusterAttributes,
     TuyaPowerConfigurationCluster,
@@ -23,7 +24,6 @@ from zhaquirks.tuya import (
     TuyaTimePayload,
     TuyaUserInterfaceCluster,
 )
-from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
 from zigpy.zcl.clusters.general import (
@@ -274,19 +274,21 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event(
                 "temperature_change",
                 self.DIRECT_MAPPED_ATTRS[attrid][0],
-                value
-                if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
-                else self.DIRECT_MAPPED_ATTRS[attrid][1](value),
+                (
+                    value
+                    if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
+                    else self.DIRECT_MAPPED_ATTRS[attrid][1](value)
+                ),
             )
 
         if attrid == MAXSMART_BATTERY_ATTR or attrid == SILVERCREST_BATTERY_ATTR:
             self.endpoint.device.battery_bus.listener_event(
                 "battery_change",
-                100
-                if value > 130
-                else 0
-                if value < 70
-                else round(((value - 70) * 1.67), 1),
+                (
+                    100
+                    if value > 130
+                    else 0 if value < 70 else round(((value - 70) * 1.67), 1)
+                ),
             )
         elif attrid == MAXSMART_WINDOW_DETECT_ATTR:
             self.endpoint.device.MaxsmartWindowDetection_bus.listener_event(
@@ -603,9 +605,11 @@ class MaxsmartThermostat(TuyaThermostatCluster):
 
         if attribute in self.DIRECT_MAPPING_ATTRS:
             return {
-                self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
-                else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                    value
+                    if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
+                    else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                )
             }
 
         if attribute == "occupied_heating_setpoint":
@@ -622,9 +626,11 @@ class MaxsmartThermostat(TuyaThermostatCluster):
 
             if mode != self.Preset.Away:
                 return {
-                    self.DIRECT_MAPPING_ATTRS[attribute_mode][0]: value
-                    if self.DIRECT_MAPPING_ATTRS[attribute_mode][1] is None
-                    else self.DIRECT_MAPPING_ATTRS[attribute_mode][1](value)
+                    self.DIRECT_MAPPING_ATTRS[attribute_mode][0]: (
+                        value
+                        if self.DIRECT_MAPPING_ATTRS[attribute_mode][1] is None
+                        else self.DIRECT_MAPPING_ATTRS[attribute_mode][1](value)
+                    )
                 }
             else:
                 attribute_mode = "occupied_heating_setpoint_away"
@@ -1337,7 +1343,7 @@ class MaxsmartWindowDetectTime(LocalDataCluster, AnalogOutput):
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
 
 
-class MaxsmartWindowDetection(TuyaEnchantableCluster, LocalDataCluster, BinaryInput):
+class MaxsmartWindowDetection(LocalDataCluster, BinaryInput):
     """Binary cluster for the window detection function."""
 
     def __init__(self, *args, **kwargs):
