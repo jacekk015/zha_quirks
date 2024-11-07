@@ -14,6 +14,7 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    EnchantedDevice,
     NoManufacturerCluster,
     TuyaManufCluster,
     TuyaManufClusterAttributes,
@@ -23,7 +24,6 @@ from zhaquirks.tuya import (
     TuyaTimePayload,
     TuyaUserInterfaceCluster,
 )
-from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
 from zigpy.zcl.clusters.general import (

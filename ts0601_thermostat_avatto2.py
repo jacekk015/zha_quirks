@@ -1,4 +1,5 @@
 """Avatto2 TRV devices support."""
+
 import logging
 from typing import Optional, Union
 
@@ -13,6 +14,7 @@ from zhaquirks.const import (
     PROFILE_ID,
 )
 from zhaquirks.tuya import (
+    EnchantedDevice,
     NoManufacturerCluster,
     TuyaManufCluster,
     TuyaManufClusterAttributes,
@@ -22,7 +24,6 @@ from zhaquirks.tuya import (
     TuyaTimePayload,
     TuyaUserInterfaceCluster,
 )
-from zhaquirks.tuya.mcu import EnchantedDevice
 from zigpy.profiles import zha
 from zigpy.zcl import foundation
 from zigpy.zcl.clusters.general import (
@@ -214,9 +215,11 @@ class Avatto2ManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event(
                 "temperature_change",
                 self.DIRECT_MAPPED_ATTRS[attrid][0],
-                value
-                if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
-                else self.DIRECT_MAPPED_ATTRS[attrid][1](value),
+                (
+                    value
+                    if self.DIRECT_MAPPED_ATTRS[attrid][1] is None
+                    else self.DIRECT_MAPPED_ATTRS[attrid][1](value)
+                ),
             )
 
         if attrid == AVATTO2_CHILD_LOCK_ATTR:
@@ -311,9 +314,11 @@ class Avatto2Thermostat(TuyaThermostatCluster):
 
         if attribute in self.DIRECT_MAPPING_ATTRS:
             return {
-                self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
-                else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                    value
+                    if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
+                    else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                )
             }
 
         if attribute == "operation_preset":
