@@ -50,6 +50,7 @@ AVATTO_CHILD_LOCK_ATTR = 0x0128  # [0] unlocked [1] locked
 AVATTO_TEMP_CALIBRATION_ATTR = 0x021B  # temperature calibration (degree)
 AVATTO_MIN_TEMPERATURE_VAL = 500  # minimum limit of temperature setting (degree/100)
 AVATTO_MAX_TEMPERATURE_VAL = 3000  # maximum limit of temperature setting (degree/100)
+AVATTO_DEADZONE_ATTR = 0x0214
 AvattoManufClusterSelf = {}
 
 
@@ -189,6 +190,7 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
             BEOK_HEAT_STATE_ATTR: ("beok_heat_state", t.uint8_t, True),
             AVATTO_CHILD_LOCK_ATTR: ("child_lock", t.uint8_t, True),
             AVATTO_TEMP_CALIBRATION_ATTR: ("temperature_calibration", t.int32s, True),
+            AVATTO_DEADZONE_ATTR: ("deadzone_temp", t.int32s, True),
         }
     )
 
@@ -276,6 +278,11 @@ class AvattoManufCluster(TuyaManufClusterAttributes):
         elif attrid == AVATTO_SYSTEM_MODE_ATTR:
             self.endpoint.device.thermostat_bus.listener_event(
                 "system_mode_change", value
+            )
+
+        if attrid == AVATTO_DEADZONE_ATTR:
+            self.endpoint.device.AvattoDeadzoneTemp_bus.listener_event(
+                "set_value", value
             )
 
 
@@ -502,6 +509,50 @@ class AvattoTempCalibration(LocalDataCluster, AnalogOutput):
         return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
 
 
+class AvattoDeadzoneTemp(LocalDataCluster, AnalogOutput):
+    """Analog output for Deadzone Temp."""
+
+    def __init__(self, *args, **kwargs):
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.endpoint.device.AvattoDeadzoneTemp_bus.add_listener(self)
+        self._update_attribute(
+            self.attributes_by_name["description"].id, "Deadzone Temperature"
+        )
+        self._update_attribute(self.attributes_by_name["max_present_value"].id, 5)
+        self._update_attribute(self.attributes_by_name["min_present_value"].id, 0)
+        self._update_attribute(self.attributes_by_name["resolution"].id, 1)
+        self._update_attribute(self.attributes_by_name["application_type"].id, 13 << 16)
+        self._update_attribute(self.attributes_by_name["engineering_units"].id, 62)
+
+    def set_value(self, value):
+        """Set value."""
+        self._update_attribute(self.attributes_by_name["present_value"].id, value)
+
+    def get_value(self):
+        """Get value."""
+        return self._attr_cache.get(self.attributes_by_name["present_value"].id)
+
+    async def write_attributes(self, attributes, manufacturer=None):
+        """Override the default Cluster write_attributes."""
+        for attrid, value in attributes.items():
+            if isinstance(attrid, str):
+                attrid = self.attributes_by_name[attrid].id
+            if attrid not in self.attributes:
+                self.error("%d is not a valid attribute id", attrid)
+                continue
+            self._update_attribute(attrid, value)
+
+            await AvattoManufClusterSelf[
+                self.endpoint.device.ieee
+            ].endpoint.tuya_manufacturer.write_attributes(
+                {AVATTO_DEADZONE_ATTR: value},
+                manufacturer=None,
+            )
+
+        return ([foundation.WriteAttributesStatusRecord(foundation.Status.SUCCESS)],)
+
+
 class Avatto(EnchantedDevice, TuyaThermostat):
     """Avatto Thermostatic radiator valve."""
 
@@ -509,6 +560,7 @@ class Avatto(EnchantedDevice, TuyaThermostat):
         """Init device."""
         self.thermostat_onoff_bus = Bus()
         self.AvattoTempCalibration_bus = Bus()
+        self.AvattoDeadzoneTemp_bus = Bus()
         super().__init__(*args, **kwargs)
 
     signature = {
