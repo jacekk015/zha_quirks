@@ -687,6 +687,12 @@ class Beok(EnchantedDevice, TuyaThermostat):
                 INPUT_CLUSTERS: [AvattoTempCalibration],
                 OUTPUT_CLUSTERS: [],
             },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [AvattoDeadzoneTemp],
+                OUTPUT_CLUSTERS: [],
+            },
             242: {
                 PROFILE_ID: 41440,
                 DEVICE_TYPE: 97,
