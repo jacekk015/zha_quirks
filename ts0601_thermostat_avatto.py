@@ -616,6 +616,12 @@ class Avatto(EnchantedDevice, TuyaThermostat):
                 INPUT_CLUSTERS: [AvattoTempCalibration],
                 OUTPUT_CLUSTERS: [],
             },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [AvattoDeadzoneTemp],
+                OUTPUT_CLUSTERS: [],
+            },
         }
     }
 
@@ -627,6 +633,7 @@ class Beok(EnchantedDevice, TuyaThermostat):
         """Init device."""
         self.thermostat_onoff_bus = Bus()
         self.AvattoTempCalibration_bus = Bus()
+        self.AvattoDeadzoneTemp_bus = Bus()
         super().__init__(*args, **kwargs)
 
     signature = {
@@ -710,6 +717,7 @@ class Beok2(EnchantedDevice, TuyaThermostat):
         """Init device."""
         self.thermostat_onoff_bus = Bus()
         self.AvattoTempCalibration_bus = Bus()
+        self.AvattoDeadzoneTemp_bus = Bus()
         super().__init__(*args, **kwargs)
 
     signature = {
@@ -759,6 +767,12 @@ class Beok2(EnchantedDevice, TuyaThermostat):
                 PROFILE_ID: zha.PROFILE_ID,
                 DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
                 INPUT_CLUSTERS: [AvattoTempCalibration],
+                OUTPUT_CLUSTERS: [],
+            },
+            4: {
+                PROFILE_ID: zha.PROFILE_ID,
+                DEVICE_TYPE: zha.DeviceType.CONSUMPTION_AWARENESS_DEVICE,
+                INPUT_CLUSTERS: [AvattoDeadzoneTemp],
                 OUTPUT_CLUSTERS: [],
             },
         }
