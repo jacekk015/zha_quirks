@@ -256,8 +256,8 @@ class SiterwellThermostat(TuyaThermostatCluster):
         if value == 0:
             operation_preset = self.Preset.Away
             prog_mode = self.ProgrammingOperationMode.Simple
-            occupancy = self.Occupancy.Occupied
-            system_mode = self.SystemMode.Heat
+            occupancy = self.Occupancy.Unoccupied
+            system_mode = self.SystemMode.Off
             target_temp = self._attr_cache.get(
                 self.attributes_by_name["occupied_heating_setpoint"].id
             )
