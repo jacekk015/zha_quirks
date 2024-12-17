@@ -1,4 +1,5 @@
 """Siterwell TRV devices support."""
+
 import logging
 from typing import Optional, Union
 
@@ -96,9 +97,11 @@ class SiterwellManufCluster(TuyaManufClusterAttributes):
             self.endpoint.device.thermostat_bus.listener_event(
                 "temperature_change",
                 self.TEMPERATURE_ATTRS[attrid][0],
-                value
-                if self.TEMPERATURE_ATTRS[attrid][1] is None
-                else self.TEMPERATURE_ATTRS[attrid][1](value),
+                (
+                    value
+                    if self.TEMPERATURE_ATTRS[attrid][1] is None
+                    else self.TEMPERATURE_ATTRS[attrid][1](value)
+                ),
             )
         elif attrid == SITERWELL_BATTERY_ATTR:
             self.endpoint.device.battery_bus.listener_event("battery_change", value)
@@ -207,9 +210,11 @@ class SiterwellThermostat(TuyaThermostatCluster):
 
         if attribute in self.DIRECT_MAPPING_ATTRS:
             return {
-                self.DIRECT_MAPPING_ATTRS[attribute][0]: value
-                if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
-                else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                self.DIRECT_MAPPING_ATTRS[attribute][0]: (
+                    value
+                    if self.DIRECT_MAPPING_ATTRS[attribute][1] is None
+                    else self.DIRECT_MAPPING_ATTRS[attribute][1](value)
+                )
             }
 
         if attribute in ("system_mode", "programing_oper_mode"):
@@ -256,7 +261,7 @@ class SiterwellThermostat(TuyaThermostatCluster):
         if value == 0:
             operation_preset = self.Preset.Away
             prog_mode = self.ProgrammingOperationMode.Simple
-            occupancy = self.Occupancy.Occupied
+            occupancy = self.Occupancy.Unoccupied
             system_mode = self.SystemMode.Heat
             target_temp = self._attr_cache.get(
                 self.attributes_by_name["occupied_heating_setpoint"].id
