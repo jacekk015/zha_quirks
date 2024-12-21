@@ -470,6 +470,7 @@ class ME167(TuyaThermostat):
             ("_TZE200_rxntag7i", "TS0601"),  # model: 'ME168', vendor: 'Avatto'
             ("_TZE200_rxq4iti9", "TS0601"),
             ("_TZE200_9xfjixap", "TS0601"),
+            ("_TZE200_hvaxb2tc", "TS0601"),
         ],
         ENDPOINTS: {
             1: {
