@@ -1,5 +1,6 @@
 """Avatto2 TRV devices support."""
 
+import datetime
 import logging
 from typing import Optional, Union
 
@@ -156,7 +157,8 @@ class Avatto2ManufCluster(TuyaManufClusterAttributes):
         global Avatto2ManufClusterSelf
         Avatto2ManufClusterSelf[self.endpoint.device.ieee] = self
 
-    set_time_offset = 1970
+    set_time_offset = datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC)
+    set_time_local_offset = datetime.datetime(1970, 1, 1)
 
     server_commands = {
         0x0000: foundation.ZCLCommandDef(
