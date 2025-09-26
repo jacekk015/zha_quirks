@@ -471,6 +471,7 @@ class ME167(TuyaThermostat):
             ("_TZE200_rxq4iti9", "TS0601"),
             ("_TZE200_9xfjixap", "TS0601"),
             ("_TZE200_hvaxb2tc", "TS0601"),
+            ("_TZE200_ow09xlxm", "TS0601"),  # model: 'TRV06-AT', vendor: 'Thaleos'
         ],
         ENDPOINTS: {
             1: {
