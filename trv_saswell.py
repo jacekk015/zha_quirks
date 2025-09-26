@@ -1,4 +1,5 @@
 """Map from manufacturer to standard clusters for thermostatic valves."""
+import datetime
 import logging
 from typing import Optional, Union
 
@@ -149,6 +150,9 @@ class CustomTuyaOnOff(LocalDataCluster, OnOff):
 
 class SaswellManufCluster(TuyaManufClusterAttributes):
     """Manufacturer specific cluster for Tuya converting attributes <-> commands."""
+
+    set_time_offset = datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC)
+    set_time_local_offset = datetime.datetime(1970, 1, 1)
 
     def __init__(self, *args, **kwargs):
         """Init."""

@@ -1,5 +1,6 @@
 """Maxsmart TRV devices support."""
 
+import datetime
 import logging
 import math
 from typing import Optional, Union
@@ -188,7 +189,8 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
         global MaxsmartManufClusterSelf
         MaxsmartManufClusterSelf[self.endpoint.device.ieee] = self
 
-    set_time_offset = 1970
+    set_time_offset = datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC)
+    set_time_local_offset = datetime.datetime(1970, 1, 1)
 
     attributes = TuyaManufClusterAttributes.attributes.copy()
     attributes.update(
