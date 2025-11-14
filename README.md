@@ -117,6 +117,8 @@ logger:
             ("_TZE200_rxntag7i", "TS0601"), # model: 'ME168', vendor: 'Avatto'
             ("_TZE200_rxq4iti9", "TS0601"),
             ("_TZE200_9xfjixap", "TS0601"),
+            ("_TZE200_ow09xlxm", "TS0601"),  # model: 'TRV06-AT', vendor: 'Thaleos'
+            ("_TZE204_vjpaih9f", "TS0601"),  # model: 'N-TRV16', vendor: 'Avatto'
         ],
 ```
 ## ts0601_trv_moes.py
