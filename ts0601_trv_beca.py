@@ -85,19 +85,16 @@ class BecaManufCluster(TuyaManufClusterAttributes):
         0x0000: foundation.ZCLCommandDef(
             "set_data",
             {"param": TuyaManufCluster.Command},
-            False,
             is_manufacturer_specific=False,
         ),
         0x0010: foundation.ZCLCommandDef(
             "mcu_version_req",
             {"param": t.uint16_t},
-            False,
             is_manufacturer_specific=True,
         ),
         0x0024: foundation.ZCLCommandDef(
             "set_time",
             {"param": TuyaTimePayload},
-            False,
             is_manufacturer_specific=True,
         ),
     }
