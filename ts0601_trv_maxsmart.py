@@ -318,6 +318,10 @@ class MaxsmartManufCluster(TuyaManufClusterAttributes):
                     "occupied_heating_setpoint_manual",
                     self.DIRECT_MAPPED_ATTRS[MAXSMART_TARGET_TEMP_MAN_ATTR][1](value),
                 )
+                # derive heat/off from manual setpoint reports (off = manual mode @ 0)
+                self.endpoint.device.thermostat_bus.listener_event(
+                    "manual_setpoint_report", value
+                )
             self.endpoint.device.thermostat_bus.listener_event(
                 "hass_climate_state_change", attrid, value
             )
@@ -682,7 +686,8 @@ class MaxsmartThermostat(TuyaThermostatCluster):
             if value == self.SystemMode.Off:
                 return {MAXSMART_MODE_ATTR: 1, MAXSMART_TARGET_TEMP_MAN_ATTR: 0}
             else:
-                return {MAXSMART_MODE_ATTR: 0}
+                # heat = manual mode at 21.0 C (raw value = C * 2), not schedule mode
+                return {MAXSMART_MODE_ATTR: 1, MAXSMART_TARGET_TEMP_MAN_ATTR: 42}
 
             # return {
             #     MAXSMART_MODE_ATTR: self._attr_cache.get(
@@ -744,7 +749,30 @@ class MaxsmartThermostat(TuyaThermostatCluster):
             )
 
         state = 0 if (int(temp_current) >= int(temp_set)) else 1
+        # never report heating while the thermostat is off
+        if (
+            self._attr_cache.get(self.attributes_by_name["system_mode"].id)
+            == self.SystemMode.Off
+        ):
+            state = 0
         self.endpoint.device.thermostat_bus.listener_event("state_change", state)
+
+    def manual_setpoint_report(self, value):
+        """In manual mode, setpoint 0 means off, anything else means heat."""
+        preset = self._attr_cache.get(self.attributes_by_name["operation_preset"].id)
+        if preset != self.Preset.Manual:
+            return
+        self._update_attribute(
+            self.attributes_by_name["system_mode"].id,
+            self.SystemMode.Off if value == 0 else self.SystemMode.Heat,
+        )
+        if value == 0:
+            self.endpoint.device.thermostat_bus.listener_event("state_change", 0)
+        else:
+            self._update_attribute(
+                self.attributes_by_name["occupied_heating_setpoint"].id,
+                value / 2 * 100,
+            )
 
     def mode_change(self, value):
         """System Mode change."""
